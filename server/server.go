@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 )
 
 /***************************************************************************************\
@@ -13,7 +14,7 @@ import (
 
 const CanStackDraw2 = true;
 const CanStackDraw4 = true;
-const Draw4OnDraw2 = true;
+const CanStackDraw4OnDraw2 = true;
 
 type Coordinator struct {
 	Cards []Card 
@@ -21,11 +22,10 @@ type Coordinator struct {
 	Direction int
 	NoPlayer int
 	Pos int
-	CurrentCard Card
+	CurrCardData []string
 
 	Draw2Stack int
 	Draw4Stack int
-	SkipStack int
 }
 
 
@@ -70,7 +70,7 @@ func  InitAGame(noPlayers int) Coordinator {
 		Direction: 1, 
 		NoPlayer: noPlayers,
 		Pos: 0,
-		CurrentCard: Card{Data: "*"},
+		CurrCardData: []string{"*"},
 	}
 }
 
@@ -84,19 +84,60 @@ func (c *Coordinator) InitAPlayerCardSet(noCards int) []Card {
 	return cards
 }
 
-func (c *Coordinator) Skip1Player() {
-	c.Pos = (c.Pos+c.Direction)%c.NoPlayer;
-} 
-
-func (c *Coordinator) Reverse() {
-	c.Direction = -c.Direction;
+func (c *Coordinator) ReceiveAValidCard(card Card) {
+	c.UsedCards = append(c.UsedCards, card)
+	data := strings.Split(card.Data, ":")
+	if data[1] == "num" {
+		c.CurrCardData = data;
+	} 
+	switch data[2] {
+	case "skip":
+		c.skip1()	
+		// update current data
+		c.CurrCardData = data
+	case "reverse":
+		c.reverse()
+		// update current data
+		c.CurrCardData = data
+	case "change":
+		// update current data
+		c.CurrCardData = data
+	case "draw":
+		if data[3] == "2" {
+			c.Draw2Stack++
+			// update curren data
+			c.CurrCardData = data
+		} else if data[3] == "4" {
+			c.Draw4Stack++
+			c.CurrCardData = data
+		}
+	}
+	fmt.Sprintln("receive a weird card")
 }
 
-// func (c *Coordinator) draw1() {
-
-// } 
-
-func (c *Coordinator) ChangeColor(color int) {
-
+func (c* Coordinator) skip1() {
+	c.Pos += c.Direction;
 }
 
+func (c *Coordinator) reverse() {
+	c.Direction = - c.Direction;
+}
+
+func (c *Coordinator) Draw(noCards int) []Card {
+	cards := []Card{}
+	for i := 0; i < noCards; i++ {
+		cards = append(cards, c.draw1())
+	}
+	return cards
+}
+
+func (c *Coordinator) draw1() Card {
+	randPos := rand.Int() % len(c.Cards)
+	card := c.Cards[randPos]
+	c.Cards = RemoveACard(c.Cards, randPos)
+	return card
+}
+
+func (c *Coordinator) SendCardsToAPlayer(cards []Card, playerPos int) {
+
+}
