@@ -2,8 +2,12 @@ package server
 
 import (
 	"fmt"
+	"log"
 	"math/rand"
 	"strings"
+	"sync"
+
+	"github.com/gorilla/websocket"
 )
 
 /***************************************************************************************\
@@ -16,16 +20,17 @@ const CanStackDraw2 = true;
 const CanStackDraw4 = true;
 const CanStackDraw4OnDraw2 = true;
 
-type Coordinator struct {
-	Cards []Card 
-	UsedCards []Card
-	Direction int
-	NoPlayer int
-	Pos int
-	CurrCardData []string
-
-	Draw2Stack int
-	Draw4Stack int
+type Server struct {
+	cards []Card 
+	currCardData []string
+	// usedCards []Card
+	direction int
+	noPlayer int
+	pos int
+	draw2Stack int
+	draw4Stack int
+	players map[*Player]bool
+	sync.RWMutex
 }
 
 
@@ -38,7 +43,7 @@ type Coordinator struct {
 */
 
 // create 108 cards
-func  InitAGame(noPlayers int) Coordinator {
+func  InitAGame() Server {
 	color := []string{"red","green","blue","yellow"}
 	var cards []Card
 	// 18x4 cards {red, green, blue, yello} from 1 -> 9
@@ -64,80 +69,108 @@ func  InitAGame(noPlayers int) Coordinator {
 		// 4 {red, green, blue, yello} draw4 cards
 		cards = append(cards, Card{ Data: fmt.Sprintf("%v:fun:draw:4", color[i])})
 	}
-	return Coordinator{
-		Cards: cards, 
-		UsedCards: []Card{}, 
-		Direction: 1, 
-		NoPlayer: noPlayers,
-		Pos: 0,
-		CurrCardData: []string{"*"},
+	return Server{
+		cards: cards, 
+		// usedCards: []Card{}, 
+		direction: 1, 
+		noPlayer: 0,
+		pos: 0,
+		currCardData: []string{"*"},
+		players: make(map[*Player]bool),
 	}
 }
 
-func (c *Coordinator) InitAPlayerCardSet(noCards int) []Card {
+func (s *Server) InitAPlayerCardSet(noCards int) []Card {
 	cards := []Card{}
 	for i := 0; i < noCards; i++ {
-		p := rand.Int() % len(c.Cards)
-		cards = append(cards, c.Cards[p])
-		c.Cards = RemoveACard(c.Cards, p)
+		p := rand.Int() % len(s.cards)
+		cards = append(cards, s.cards[p])
+		s.cards = RemoveACard(s.cards, p)
 	}
 	return cards
 }
 
-func (c *Coordinator) ReceiveAValidCard(card Card) {
-	c.UsedCards = append(c.UsedCards, card)
+func (s *Server) ReceiveAValidCard(card Card) {
+	// s.UsedCards = append(s.UsedCards, card)
 	data := strings.Split(card.Data, ":")
 	if data[1] == "num" {
-		c.CurrCardData = data;
+		s.currCardData = data;
 	} 
 	switch data[2] {
 	case "skip":
-		c.skip1()	
+		s.skip1()	
 		// update current data
-		c.CurrCardData = data
+		s.currCardData = data
 	case "reverse":
-		c.reverse()
+		s.reverse()
 		// update current data
-		c.CurrCardData = data
+		s.currCardData = data
 	case "change":
 		// update current data
-		c.CurrCardData = data
+		s.currCardData = data
 	case "draw":
 		if data[3] == "2" {
-			c.Draw2Stack++
+			s.draw2Stack++
 			// update curren data
-			c.CurrCardData = data
+			s.currCardData = data
 		} else if data[3] == "4" {
-			c.Draw4Stack++
-			c.CurrCardData = data
+			s.draw4Stack++
+			s.currCardData = data
 		}
 	}
 	fmt.Sprintln("receive a weird card")
 }
 
-func (c* Coordinator) skip1() {
-	c.Pos += c.Direction;
+func (c* Server) skip1() {
+	c.pos += c.direction;
 }
 
-func (c *Coordinator) reverse() {
-	c.Direction = - c.Direction;
+func (s *Server) reverse() {
+	s.direction = - s.direction;
 }
 
-func (c *Coordinator) Draw(noCards int) []Card {
+func (s *Server) Draw(noCards int) []Card {
 	cards := []Card{}
 	for i := 0; i < noCards; i++ {
-		cards = append(cards, c.draw1())
+		cards = append(cards, s.draw1())
 	}
 	return cards
 }
 
-func (c *Coordinator) draw1() Card {
-	randPos := rand.Int() % len(c.Cards)
-	card := c.Cards[randPos]
-	c.Cards = RemoveACard(c.Cards, randPos)
+func (s *Server) draw1() Card {
+	randPos := rand.Int() % len(s.cards)
+	card := s.cards[randPos]
+	s.cards = RemoveACard(s.cards, randPos)
 	return card
 }
 
-func (c *Coordinator) SendCardsToAPlayer(cards []Card, playerPos int) {
+func (s *Server) SendCardsToAPlayer(cards []Card, playerPos int) {
 
+}
+
+func (s *Server) AddPlayer(conn *websocket.Conn) {
+	s.Lock()
+	defer s.Unlock()
+
+	newPlayer := NewPlayer(s.noPlayer, conn, s)
+	if _, ok := s.players[newPlayer]; ok {
+		log.Printf("player exists")
+		return
+	} 
+	
+	s.players[newPlayer] = true
+	s.noPlayer++
+
+	go newPlayer.readMessage()
+	go newPlayer.writeMessage()
+}
+
+func (s *Server) RemovePlayer(player *Player) {
+	s.Lock()
+	defer s.Unlock()
+
+	if _, ok := s.players[player]; ok {
+		player.conn.Close()
+		delete(s.players, player)
+	}
 }
