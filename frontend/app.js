@@ -99,6 +99,26 @@ window.onload = function () {
     let cards = document.getElementById("cards");
     let nextCard = document.getElementById("next-card");
     let submitBTN = document.getElementById("submit");
+    let name = document.getElementById("name");
+    let nameBTN = document.getElementById("nameSubmit");
+
+    nameBTN.onclick = function (e) {
+        if (name.value == "") {
+            alert("name field is empty")
+            return
+        }
+
+        let MyPlayerName = name.value;
+        nameSubmit.disabled = true;
+        name.disabled = true;
+
+        document.getElementById("data").hidden = false;
+
+        let payload = {
+            name: MyPlayerName
+        }
+        SendMessage("request_data", payload)
+    }
 
     function updateUI() {
         let str = "";
@@ -127,9 +147,13 @@ window.onload = function () {
         }
 
         if (nextCardPos == -1) {
+            let n = 1
+            if (MyPlayer.ctx.stack2 != 0 || MyPlayer.ctx.stack4 != 0) {
+                n = MyPlayer.ctx.stack2 * 2 + MyPlayer.ctx.stack4 * 4
+            }
             SendMessage("draw_cards", {
                 from: MyPlayer.id,
-                amount: 1
+                amount: n
             })
             return
         }
@@ -147,7 +171,7 @@ window.onload = function () {
         }
 
         let payload = {
-            from: MyPlayer.id,
+            id: MyPlayer.id,
             card: data,
             cardPos: nextCardPos
         }

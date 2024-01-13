@@ -94,6 +94,7 @@ func (s *Server) NextID() int {
 func (s *Server) setupEventHandlers() {
 	s.handlers[EventPlayCard] = PlayCard
 	s.handlers[EventDrawCards] = DrawCards
+	s.handlers[EventRequestData] = RequestData
 }
 
 func (s *Server) getContext() *Context {
@@ -191,27 +192,22 @@ func (s *Server) AddPlayer(conn *websocket.Conn) {
 		}
 	}
 
-	var cards []Card
-	if _cards, ok := s.storage[strings.Split(conn.RemoteAddr().String(), ":")[0]]; ok {
-		fmt.Printf("player exists, load data")
-		cards = _cards
-	} else {
-		fmt.Println("requesting new card set...")
-		cards = s.InitAPlayerCardSet(NOCARD)
-	}
-
-	player := Player{
+	player := &Player{
 		id:      s.NextID(),
 		conn:    conn,
 		manager: s,
 		egress:  make(chan Event),
-		cards:   cards,
+		cards:   []Card{},
+		name:    "",
 	}
+
+	s.sortedPlayers = append(s.sortedPlayers, player)
 
 	playerData := PlayerData{
 		ID:    player.id,
 		Cards: player.cards,
 		Ctx:   *s.getContext(),
+		Name:  player.name,
 	}
 
 	log.Printf("New Player: \n\tID:%v\n\tCards:%v", playerData.ID, playerData.Cards)
@@ -235,18 +231,14 @@ func (s *Server) AddPlayer(conn *websocket.Conn) {
 
 func (s *Server) RemovePlayer(player *Player) {
 	s.Lock()
-	fmt.Println("remove s.lock()")
-	defer func() { fmt.Println("remove s.unclock()") }()
 	defer s.Unlock()
 
-	s.storage[strings.Split(player.conn.LocalAddr().String(), ":")[0]] = player.cards
+	fmt.Println("saved cards: ", player.cards)
+	s.storage[player.name] = player.cards
 
-	fmt.Printf("find: %v", player.conn.RemoteAddr().String())
 	for idx, ele := range s.sortedPlayers {
-		fmt.Println(ele)
 		if ele.conn.RemoteAddr().String() == player.conn.RemoteAddr().String() {
 			s.sortedPlayers = append(append([]*Player{}, s.sortedPlayers[:idx]...), s.sortedPlayers[idx+1:]...)
-			fmt.Println("RemovePlayer(), remove successfully!")
 			break
 		}
 	}

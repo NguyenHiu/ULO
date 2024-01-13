@@ -30,6 +30,5 @@ func handleWS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	fmt.Printf("new connection, address: %v\n", conn.RemoteAddr())
-	fmt.Println("Hi, I'm a debug flag")
 	S.AddPlayer(conn)
 }

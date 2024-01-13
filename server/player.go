@@ -9,6 +9,7 @@ import (
 )
 
 type Player struct {
+	name    string
 	id      int
 	conn    *websocket.Conn
 	manager *Server
@@ -36,10 +37,6 @@ func (p *Player) readMessage() {
 			break
 		}
 
-		// for c := range p.manager.players {
-		// 	c.egress <- event
-		// }
-
 		if err := p.manager.routeEvent(event, p); err != nil {
 			log.Printf("route event error: %v", err)
 		}
@@ -52,13 +49,6 @@ func (p *Player) writeMessage() {
 	}()
 
 	for message := range p.egress {
-		// if !ok {
-		// 	if err := p.conn.WriteMessage(websocket.CloseMessage, nil); err != nil {
-		// 		log.Printf("Close connection error: %v", err)
-		// 	}
-		// 	return
-		// }
-
 		data, err := json.Marshal(message)
 		if err != nil {
 			log.Println("masrshalling error: ", err)
@@ -76,6 +66,7 @@ func (p *Player) RemoveCardAt(pos int) {
 }
 
 type PlayerData struct {
+	Name  string  `json:"name"`
 	ID    int     `json:"id"`
 	Cards []Card  `json:"cards"`
 	Ctx   Context `json:"ctx"`

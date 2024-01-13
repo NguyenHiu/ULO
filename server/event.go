@@ -20,10 +20,11 @@ const (
 	EventUpdateCards = "update_cards"
 	EventDrawCards   = "draw_cards"
 	EventPlayCard    = "play_card"
+	EventRequestData = "request_data"
 )
 
 type PlayCardEvent struct {
-	From     int      `json:"from"`
+	ID       int      `json:"id"`
 	CardData []string `json:"card"`
 	CardPos  int      `json:"cardPos"`
 }
@@ -33,6 +34,10 @@ type DrawCardsEvent struct {
 	Amount int `json:"amount"`
 }
 
+type RequestDataEvent struct {
+	Name string `json:"name`
+}
+
 func PlayCard(event Event, p *Player) error {
 	var data PlayCardEvent
 	err := json.Unmarshal(event.Payload, &data)
@@ -40,7 +45,7 @@ func PlayCard(event Event, p *Player) error {
 		return fmt.Errorf("PlayCard() unmarshalling error: %v", err)
 	}
 
-	if p.manager.pos == data.From {
+	if p.manager.sortedPlayers[p.manager.pos].id == data.ID {
 		p.manager.ReceiveAValidCard(Card{Data: strings.Join(data.CardData, ":")})
 		p.RemoveCardAt(data.CardPos)
 
@@ -98,8 +103,48 @@ func DrawCards(event Event, p *Player) error {
 			Payload: cardsData,
 		}
 
+		p.manager.pos = (p.manager.pos + p.manager.direction) % len(p.manager.sortedPlayers)
+
 	} else {
 		return errors.New("not your turn")
+	}
+
+	return nil
+}
+
+func RequestData(event Event, p *Player) error {
+	var data RequestDataEvent
+	err := json.Unmarshal(event.Payload, &data)
+	if err != nil {
+		return fmt.Errorf("can not unmarshal request data, err: %v", err)
+	}
+
+	if cards, ok := p.manager.storage[data.Name]; ok {
+		log.Println("requestData, found data")
+		fmt.Println("cards: ", cards)
+		p.cards = cards
+		cardsData, err := json.Marshal(p.cards)
+		if err != nil {
+			return fmt.Errorf("can not marshal cards, err: %v", err)
+		}
+		p.egress <- Event{
+			Type:    EventUpdateCards,
+			Payload: cardsData,
+		}
+	} else {
+		log.Println("requestData, not found data")
+		p.cards = p.manager.InitAPlayerCardSet(NOCARD)
+		p.name = data.Name
+		newCards, err := json.Marshal(p.cards)
+		if err != nil {
+			return fmt.Errorf("can not marshal new cards, err: %v", err)
+		}
+		event := Event{
+			Type:    EventUpdateCards,
+			Payload: newCards,
+		}
+
+		p.egress <- event
 	}
 
 	return nil
