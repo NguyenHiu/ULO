@@ -9,25 +9,14 @@ import (
 )
 
 type Player struct {
-	id int 
-	conn *websocket.Conn
+	id      int
+	conn    *websocket.Conn
 	manager *Server
-	egress chan Event
-	cards []Card
+	egress  chan Event
+	cards   []Card
 }
 
-func NewPlayer(id int, conn *websocket.Conn, manager *Server) *Player {
-	cards := manager.InitAPlayerCardSet(NOCARD)
-	return &Player{
-		id: id,
-		conn: conn,
-		manager: manager,
-		egress: make(chan Event),
-		cards: cards,
-	}
-}
-
-func (p  *Player) readMessage() {
+func (p *Player) readMessage() {
 	defer func() {
 		log.Printf("client %v is disconnected", p.conn.LocalAddr())
 		p.manager.RemovePlayer(p)
@@ -50,7 +39,7 @@ func (p  *Player) readMessage() {
 		// for c := range p.manager.players {
 		// 	c.egress <- event
 		// }
-		
+
 		if err := p.manager.routeEvent(event, p); err != nil {
 			log.Printf("route event error: %v", err)
 		}
@@ -66,7 +55,7 @@ func (p *Player) writeMessage() {
 		// if !ok {
 		// 	if err := p.conn.WriteMessage(websocket.CloseMessage, nil); err != nil {
 		// 		log.Printf("Close connection error: %v", err)
-		// 	}	
+		// 	}
 		// 	return
 		// }
 
@@ -82,14 +71,12 @@ func (p *Player) writeMessage() {
 	}
 }
 
-
 func (p *Player) RemoveCardAt(pos int) {
 	p.cards = RemoveACard(p.cards, pos)
 }
 
-
 type PlayerData struct {
-	ID int `json:"id"`
-	Cards []Card `json:"cards"`
-	Ctx Context `json:"ctx"`
+	ID    int     `json:"id"`
+	Cards []Card  `json:"cards"`
+	Ctx   Context `json:"ctx"`
 }

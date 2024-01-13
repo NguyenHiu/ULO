@@ -38,11 +38,13 @@ type Server struct {
 	cards        []Card
 	currCardData []string
 	direction    int
-	noPlayer     int
 	pos          int
+	nextID       int
 	draw2Stack   int
 	draw4Stack   int
-	players      map[*Player]bool
+
+	sortedPlayers []*Player
+	storage       map[string][]Card
 
 	handlers map[string]EventHandler
 	sync.RWMutex
@@ -69,18 +71,24 @@ func InitAGame() *Server {
 	}
 
 	s := &Server{
-		cards:        cards,
-		direction:    1,
-		noPlayer:     0,
-		pos:          0,
-		currCardData: []string{"*"},
-		players:      make(map[*Player]bool),
-		handlers:     make(map[string]EventHandler),
+		cards:         cards,
+		direction:     1,
+		nextID:        0,
+		pos:           0,
+		currCardData:  []string{"*"},
+		handlers:      make(map[string]EventHandler),
+		storage:       make(map[string][]Card),
+		sortedPlayers: []*Player{},
 	}
 
 	s.setupEventHandlers()
 
 	return s
+}
+
+func (s *Server) NextID() int {
+	s.nextID++
+	return s.nextID - 1
 }
 
 func (s *Server) setupEventHandlers() {
@@ -142,7 +150,7 @@ func (s *Server) ReceiveAValidCard(card Card) {
 			s.currCardData = data
 		}
 	}
-	s.pos = (s.pos + s.direction) % len(s.players)
+	s.pos = (s.pos + s.direction) % len(s.sortedPlayers)
 }
 
 func (c *Server) skip1() {
@@ -170,20 +178,39 @@ func (s *Server) draw1() Card {
 
 func (s *Server) AddPlayer(conn *websocket.Conn) {
 	s.Lock()
+	fmt.Println("s.lock")
+	defer func() { fmt.Println("s.unclock()") }()
 	defer s.Unlock()
 
-	newPlayer := NewPlayer(s.noPlayer, conn, s)
-	if _, ok := s.players[newPlayer]; ok {
-		log.Println("player exists")
-		return
+	fmt.Println("Request WS Connect from: ", conn.RemoteAddr())
+
+	for _, p := range s.sortedPlayers {
+		if p.conn.RemoteAddr() == conn.RemoteAddr() {
+			fmt.Printf("address has already existed a player")
+			return
+		}
 	}
 
-	s.players[newPlayer] = true
-	s.noPlayer++
+	var cards []Card
+	if _cards, ok := s.storage[strings.Split(conn.RemoteAddr().String(), ":")[0]]; ok {
+		fmt.Printf("player exists, load data")
+		cards = _cards
+	} else {
+		fmt.Println("requesting new card set...")
+		cards = s.InitAPlayerCardSet(NOCARD)
+	}
+
+	player := Player{
+		id:      s.NextID(),
+		conn:    conn,
+		manager: s,
+		egress:  make(chan Event),
+		cards:   cards,
+	}
 
 	playerData := PlayerData{
-		ID:    newPlayer.id,
-		Cards: newPlayer.cards,
+		ID:    player.id,
+		Cards: player.cards,
 		Ctx:   *s.getContext(),
 	}
 
@@ -200,24 +227,28 @@ func (s *Server) AddPlayer(conn *websocket.Conn) {
 		Payload: playerDataByte,
 	}
 
-	if err != nil {
-		log.Println("marshalling event data error: ", err)
-		return
-	}
+	go player.readMessage()
+	go player.writeMessage()
 
-	go newPlayer.readMessage()
-	go newPlayer.writeMessage()
-
-	newPlayer.egress <- initPlayerEvent
+	player.egress <- initPlayerEvent
 }
 
 func (s *Server) RemovePlayer(player *Player) {
 	s.Lock()
+	fmt.Println("remove s.lock()")
+	defer func() { fmt.Println("remove s.unclock()") }()
 	defer s.Unlock()
 
-	if _, ok := s.players[player]; ok {
-		player.conn.Close()
-		delete(s.players, player)
+	s.storage[strings.Split(player.conn.LocalAddr().String(), ":")[0]] = player.cards
+
+	fmt.Printf("find: %v", player.conn.RemoteAddr().String())
+	for idx, ele := range s.sortedPlayers {
+		fmt.Println(ele)
+		if ele.conn.RemoteAddr().String() == player.conn.RemoteAddr().String() {
+			s.sortedPlayers = append(append([]*Player{}, s.sortedPlayers[:idx]...), s.sortedPlayers[idx+1:]...)
+			fmt.Println("RemovePlayer(), remove successfully!")
+			break
+		}
 	}
 }
 

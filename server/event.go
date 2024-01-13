@@ -63,7 +63,7 @@ func PlayCard(event Event, p *Player) error {
 			Type:    EventUpdateState,
 			Payload: ctx,
 		}
-		for player := range p.manager.players {
+		for _, player := range p.manager.sortedPlayers {
 			player.egress <- event
 		}
 
