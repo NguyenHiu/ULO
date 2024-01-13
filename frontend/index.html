@@ -8,120 +8,15 @@
 </head>
 
 <body>
-    <input type="text" id="input">
-    <button id="submit">submit</button>
-    <script>
-        window.onload = function () {
-            if (window["WebSocket"]) {
-                let CONN = new WebSocket("ws://" + document.location.host + "/ws")
-                CONN.onmessage = function (e) {
-                    console.log(e);
-                }
-                let btn = document.getElementById("submit");
-                let ipt = document.getElementById("input");
-                btn.onclick = function (e) {
-                    let text = ipt.value;
-                    CONN.send(text);
-                }
-            } else {
-                console.log("wtf");
-            }
-        }
-
-
-        class Card {
-            constructor(raw) {
-                this.data = raw.split(":")
-            }
-
-        }
-
-        class Context {
-            constructor(data, draw2Stack, draw4Stack, canStack2, canStack4, canStack4On2) {
-                this.currData = data
-                this.stack2 = draw2Stack
-                this.stack4 = draw4Stack
-                this.allowStack2 = canStack2
-                this.allowStack4 = canStack4
-                this.allowStack4Over2 = canStack4On2
-            }
-        }
-        class Player {
-            constructor(id, cards, context) {
-                this.id = id
-                this.cards = cards
-                this.ctx = context
-            }
-
-            SetNewContext(newCTX) {
-                this.ctx = newCTX
-            }
-
-            Draw() {
-
-            }
-
-            Draw1(card) {
-                this.cards.push(card)
-            }
-
-            PlayCardAt(index) {
-                if (index > this.cards.length) {
-                    console.log("card's index is invalid");
-                    return;
-                }
-
-                let card = this.cards[index]
-                if (!checkNextCardIsValid(card.data)) {
-                    console.log("can not play this card");
-                    return;
-                }
-                this.cards.remove(index);
-                return card;
-            }
-
-            checkNextCardIsValid(data) {
-                // data: strng array
-                if (this.ctx.currData == "*")
-                    return true;
-                if (data[1] == "num")
-                    return checkNumCard(data);
-                else return checkFunCard(data);
-            }
-
-            checkNumCard(data) {
-                if ((this.ctx.stack2 != 0) || (this.ctx.stack4 != 0))
-                    return false;
-                if (this.ctx.currData[1] == "num")
-                    return (this.ctx.currData[0] == data[0]) ||
-                        (this.ctx.currData[2] == data[2]);
-
-                return this.ctx.currData[0] == data[0];
-            }
-
-            checkFunCard(data) {
-                if ((data[2] == "skip") || data[2] == "reverse")
-                    return (this.ctx.stack2 == 0) && (this.ctx.stack4 == 0) &&
-                        (this.ctx.currData[0] == data[0] || this.ctx.currData[2] == data[2]);
-
-                if (this.ctx.currData[2] == "draw") {
-                    switch (this.ctx.currData[3]) {
-                        case "4":
-                            return this.ctx.allowStack4 && (data[2] == "draw") && data[3] == "4";
-                        case "2":
-                            if ((data[2] == "draw") && data[3] == "2")
-                                return this.ctx.allowStack2;
-                            else if ((data[2] == "draw") && data[3] == "4")
-                                return this.ctx.allowStack4Over2;
-                            break;
-
-                    }
-                }
-
-                return true;
-            }
-        }
-    </script>
+    <h3>Your cards:</h3>
+    <p id="cards"></p>
+    <h4> Current card:
+        <p id="current-card"></p>
+    </h4>
+    <h4>What is your next card? </h4>
+    <input id="next-card">
+    <button id="submit">submit yoru decision</button>
+    <script src="app.js"></script>
 </body>
 
 </html>

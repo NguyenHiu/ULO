@@ -14,7 +14,7 @@ var upgrader = websocket.Upgrader{
 }
 
 var (
-	S s.Server = s.InitAGame()
+	S *s.Server = s.InitAGame()
 )
 
 
