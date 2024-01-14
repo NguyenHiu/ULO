@@ -32,6 +32,9 @@ type Context struct {
 	AllowStack2      bool     `json:"allowStack2"`
 	AllowStack4      bool     `json:"allowStack4"`
 	AllowStack4Over2 bool     `json:"allowStack4Over2"`
+	NoPlayer         int      `json:"noplayer"`
+	PlayerNames      []string `json:"playernames"`
+	PlayerNoCards    []int    `json:"playernocards"`
 }
 
 type Server struct {
@@ -98,6 +101,13 @@ func (s *Server) setupEventHandlers() {
 }
 
 func (s *Server) getContext() *Context {
+	name := []string{}
+	nocards := []int{}
+	for _, p := range s.sortedPlayers {
+		name = append(name, p.name)
+		nocards = append(nocards, len(p.cards))
+	}
+
 	return &Context{
 		CurrData:         s.currCardData,
 		Stack2:           s.draw2Stack,
@@ -105,6 +115,9 @@ func (s *Server) getContext() *Context {
 		AllowStack2:      CanStackDraw2,
 		AllowStack4:      CanStackDraw4,
 		AllowStack4Over2: CanStackDraw4OnDraw2,
+		NoPlayer:         len(s.sortedPlayers),
+		PlayerNames:      name,
+		PlayerNoCards:    nocards,
 	}
 }
 
@@ -203,10 +216,12 @@ func (s *Server) AddPlayer(conn *websocket.Conn) {
 
 	s.sortedPlayers = append(s.sortedPlayers, player)
 
+	newCtx := *s.getContext()
+
 	playerData := PlayerData{
 		ID:    player.id,
 		Cards: player.cards,
-		Ctx:   *s.getContext(),
+		Ctx:   newCtx,
 		Name:  player.name,
 	}
 
@@ -219,14 +234,31 @@ func (s *Server) AddPlayer(conn *websocket.Conn) {
 	}
 
 	initPlayerEvent := Event{
-		Type:    "init_player",
+		Type:    EventInitPlayer,
 		Payload: playerDataByte,
+	}
+
+	ctxbytes, err := json.Marshal(newCtx)
+	if err != nil {
+		log.Println("masrhalling context error: ", err)
+		return
+	}
+
+	updateStateEvent := Event{
+		Type:    EventUpdateState,
+		Payload: ctxbytes,
 	}
 
 	go player.readMessage()
 	go player.writeMessage()
 
 	player.egress <- initPlayerEvent
+
+	for _, p := range s.sortedPlayers {
+		if p.id != player.id {
+			p.egress <- updateStateEvent
+		}
+	}
 }
 
 func (s *Server) RemovePlayer(player *Player) {
@@ -241,6 +273,21 @@ func (s *Server) RemovePlayer(player *Player) {
 			s.sortedPlayers = append(append([]*Player{}, s.sortedPlayers[:idx]...), s.sortedPlayers[idx+1:]...)
 			break
 		}
+	}
+
+	ctxbytes, err := json.Marshal(*s.getContext())
+	if err != nil {
+		log.Println("masrhalling context error: ", err)
+		return
+	}
+
+	updateStateEvent := Event{
+		Type:    EventUpdateState,
+		Payload: ctxbytes,
+	}
+
+	for _, p := range s.sortedPlayers {
+		p.egress <- updateStateEvent
 	}
 }
 

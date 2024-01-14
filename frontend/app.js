@@ -14,13 +14,16 @@ class Card {
 }
 
 class Context {
-    constructor(currData, stack2, stack4, allowStack2, allowStack4, allowStack4Over2,) {
+    constructor(currData, stack2, stack4, allowStack2, allowStack4, allowStack4Over2, noplayer, playernames, playernocards) {
         this.currData = currData
         this.stack2 = stack2
         this.stack4 = stack4
         this.allowStack2 = allowStack2
         this.allowStack4 = allowStack4
         this.allowStack4Over2 = allowStack4Over2
+        this.noplayer = noplayer
+        this.playernames = playernames
+        this.playernocards = playernocards
     }
 }
 
@@ -46,6 +49,9 @@ class Player {
     }
 
     checkFunCard(data) {
+        if (data[2] == "change")
+            return this.ctx.stack2 == 0 && this.ctx.stack4 == 0;
+
         if ((data[2] == "skip") || data[2] == "reverse")
             return (this.ctx.stack2 == 0) && (this.ctx.stack4 == 0) &&
                 (this.ctx.currData[0] == data[0] || this.ctx.currData[2] == data[2]);
@@ -95,10 +101,11 @@ window.onload = function () {
 
     let CONN = new WebSocket("ws://" + document.location.host + "/ws")
     let MyPlayer = new Player()
-    let currentCard = document.getElementById("current-card");
-    let cards = document.getElementById("cards");
-    let nextCard = document.getElementById("next-card");
-    let submitBTN = document.getElementById("submit");
+    let MyPlayerName = ""
+    // let currentCard = document.getElementById("current-card");
+    // let cards = document.getElementById("cards");
+    // let nextCard = document.getElementById("next-card");
+    // let submitBTN = document.getElementById("submit");
     let name = document.getElementById("nameInput");
     let nameBTN = document.getElementById("nameButton");
 
@@ -108,7 +115,7 @@ window.onload = function () {
             return
         }
 
-        let MyPlayerName = name.value;
+        MyPlayerName = name.value;
 
         document.getElementById("data").hidden = false;
         document.getElementById("login").hidden = true;
@@ -122,62 +129,89 @@ window.onload = function () {
     }
 
     function updateUI() {
-        let str = "";
-        for (let i = 0; i < MyPlayer.cards.length; i++) {
-            str += i.toString() + ". ";
-            for (let j = 0; j < MyPlayer.cards[i].data.length; j++) {
-                str += MyPlayer.cards[i].data[j] + " ";
+        let n = MyPlayer.ctx.noplayer;
+        let names = [];
+        let noCards = [];
+
+        // sort players
+        let i = 0
+        let detech = false
+        while (names.length < n) {
+            if (MyPlayer.ctx.playernames[i] == MyPlayerName) {
+                detech = true
             }
-            str += "\n";
+            if (detech) {
+                names.push(MyPlayer.ctx.playernames[i])
+                noCards.push(MyPlayer.ctx.playernocards[i])
+            }
+            i = (i + 1) % n
         }
-        cards.innerText = str;
 
-        let currentCardStr = "";
-        for (let i = 0; i < MyPlayer.ctx.currData.length; i++) {
-            currentCardStr += MyPlayer.ctx.currData[i] + " ";
+        let position = calculatePositionOfPlayers(n)
+
+        let left = document.getElementById("left")
+        let right = document.getElementById("right")
+        let top = document.getElementById("top")
+
+        i = 1
+        for (let j = 0; j < position.side; j++) {
+            let newObj = document.createElement("p")
+            newObj.innerText = names[i + j] + ", " + noCards[i + j]
+            left.appendChild(newObj)
         }
-        currentCard.innerText = currentCardStr;
+        i += position.side
 
-        nextCard.value = "";
+        for (let j = 0; j < position.top; j++) {
+            let newObj = document.createElement("p")
+            newObj.innerText = names[i + j] + ", " + noCards[i + j]
+            top.appendChild(newObj)
+        }
+        i += position.top
+
+        for (let j = 0; j < position.side; j++) {
+            let newObj = document.createElement("p")
+            newObj.innerText = names[i + j] + ", " + noCards[i + j]
+            right.appendChild(newObj)
+        }
     }
 
-    submitBTN.onclick = function (e) {
-        let nextCardPos = parseInt(nextCard.value)
-        if (nextCardPos === undefined) {
-            alert("next card is undefined")
-        }
+    // submitBTN.onclick = function (e) {
+    //     let nextCardPos = parseInt(nextCard.value)
+    //     if (nextCardPos === undefined) {
+    //         alert("next card is undefined")
+    //     }
 
-        if (nextCardPos == -1) {
-            let n = 1
-            if (MyPlayer.ctx.stack2 != 0 || MyPlayer.ctx.stack4 != 0) {
-                n = MyPlayer.ctx.stack2 * 2 + MyPlayer.ctx.stack4 * 4
-            }
-            SendMessage("draw_cards", {
-                from: MyPlayer.id,
-                amount: n
-            })
-            return
-        }
+    //     if (nextCardPos == -1) {
+    //         let n = 1
+    //         if (MyPlayer.ctx.stack2 != 0 || MyPlayer.ctx.stack4 != 0) {
+    //             n = MyPlayer.ctx.stack2 * 2 + MyPlayer.ctx.stack4 * 4
+    //         }
+    //         SendMessage("draw_cards", {
+    //             from: MyPlayer.id,
+    //             amount: n
+    //         })
+    //         return
+    //     }
 
-        if (nextCardPos < 0 ||
-            nextCardPos > MyPlayer.cards.length) {
-            alert("invalid index")
-            return
-        }
+    //     if (nextCardPos < 0 ||
+    //         nextCardPos > MyPlayer.cards.length) {
+    //         alert("invalid index")
+    //         return
+    //     }
 
-        let data = MyPlayer.cards[nextCardPos].data
-        if (!MyPlayer.checkNextCardIsValid(data)) {
-            alert("you can not play this card")
-            return
-        }
+    //     let data = MyPlayer.cards[nextCardPos].data
+    //     if (!MyPlayer.checkNextCardIsValid(data)) {
+    //         alert("you can not play this card")
+    //         return
+    //     }
 
-        let payload = {
-            id: MyPlayer.id,
-            card: data,
-            cardPos: nextCardPos
-        }
-        SendMessage("play_card", payload)
-    }
+    //     let payload = {
+    //         id: MyPlayer.id,
+    //         card: data,
+    //         cardPos: nextCardPos
+    //     }
+    //     SendMessage("play_card", payload)
+    // }
 
     function routeEvent(event) {
         if (event.type === undefined) {
@@ -230,5 +264,25 @@ window.onload = function () {
     }
 
 }
-
-
+function calculatePositionOfPlayers(noPlayers) {
+    switch (noPlayers) {
+        case 1:
+            return { "top": 0, "side": 0 }
+        case 2:
+            return { "top": 1, "side": 0 }
+        case 3:
+            return { "top": 0, "side": 1 }
+        default:
+            let eachSide = parseInt((noPlayers - 1) / 3)
+            let leftPlayers = (noPlayers - 1) - 3 * eachSide
+            let bs = 0, bt = 0
+            if (leftPlayers == 1)
+                bt = 1
+            else if (leftPlayers == 2)
+                bs = 1
+            return {
+                "top": eachSide + bt,
+                "side": eachSide + bs,
+            }
+    }
+}

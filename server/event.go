@@ -21,6 +21,7 @@ const (
 	EventDrawCards   = "draw_cards"
 	EventPlayCard    = "play_card"
 	EventRequestData = "request_data"
+	EventInitPlayer  = "init_player"
 )
 
 type PlayCardEvent struct {
@@ -104,6 +105,8 @@ func DrawCards(event Event, p *Player) error {
 		}
 
 		p.manager.pos = (p.manager.pos + p.manager.direction) % len(p.manager.sortedPlayers)
+		p.manager.draw2Stack = 0
+		p.manager.draw4Stack = 0
 
 	} else {
 		return errors.New("not your turn")
