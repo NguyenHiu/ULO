@@ -99,8 +99,8 @@ window.onload = function () {
     let cards = document.getElementById("cards");
     let nextCard = document.getElementById("next-card");
     let submitBTN = document.getElementById("submit");
-    let name = document.getElementById("name");
-    let nameBTN = document.getElementById("nameSubmit");
+    let name = document.getElementById("nameInput");
+    let nameBTN = document.getElementById("nameButton");
 
     nameBTN.onclick = function (e) {
         if (name.value == "") {
@@ -109,10 +109,11 @@ window.onload = function () {
         }
 
         let MyPlayerName = name.value;
-        nameSubmit.disabled = true;
-        name.disabled = true;
 
         document.getElementById("data").hidden = false;
+        document.getElementById("login").hidden = true;
+
+        document.getElementById("login").value = MyPlayerName;
 
         let payload = {
             name: MyPlayerName

@@ -5,23 +5,88 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+        #header {
+            position: relative;
+            background-color: red;
+        }
+
+        #welcome-text {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, 0);
+            display: inline-block;
+            font-size: large;
+            align-items: center;
+        }
+
+        #body {
+            width: 100%;
+            position: absolute;
+            left: 50%;
+            top: 30%;
+            transform: translate(-50%, 0);
+            background-color: blue;
+        }
+
+        .center-text {
+            text-align: center;
+        }
+
+        #login {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, 0);
+            border: 2px solid black;
+            padding: 5px 20px;
+            border-radius: 5px;
+        }
+
+        #data {
+            position: absolute;
+            left: 50%;
+            transform: translate(-50%, 0);
+        }
+    </style>
 </head>
 
-<body>
-    <h3>name</h3>
-    <input id="name">
-    <button id="nameSubmit">submit name</button>
+<body style="background-color: white;">
+    <div id="header">
+        <div id="welcome-text">
+            <h1 class="center-text">ULO</h1>
+            <p class="center-text">Welcome to ma gem</p>
+            <p class="center-text">All the logic in this game is based on our house-rules!</p>
+        </div>
+    </div>
 
-    <div id="data" hidden>
-        <h3>Your cards:</h3>
-        <p id="cards"></p>
-        <h4> Current card:
-            <p id="current-card"></p>
-        </h4>
-        <h4>What is your next card? </h4>
-        <input id="next-card">
-        <button id="submit">submit yoru decision</button>
-        <script src="app.js"></script>
+    <div id="body">
+        <div id="login">
+            <h2 class="center-text">Login</h2>
+            <div>
+                <label for="nameInput" style="display: block;">Username:</label>
+                <input id="nameInput" style="display: block; margin-top: 5px;">
+                <div style="margin-top: 10px;" class="center-text">
+                    <button id="nameButton" style="padding: 5px 30px;">Login</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="data" hidden>
+            <p>Your name:
+            <p id="data-name"></p>
+            </p>
+            <h3>Your cards:</h3>
+            <p id="cards"></p>
+            <h4> Current card:
+                <p id="current-card"></p>
+            </h4>
+            <label for="next-card" style="display: block;">What is your next card?</label>
+            <input id="next-card" style="display: block;">
+            <div class="center-text" style="margin-top: 10px;">
+                <button id="submit">submit your decision</button>
+            </div>
+            <script src="app.js"></script>
+        </div>
     </div>
 </body>
 
