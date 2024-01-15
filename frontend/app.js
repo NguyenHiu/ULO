@@ -441,7 +441,7 @@ function calculateCardsPositions(noCards, width, cardSize) {
     if (noCards <= 8) { }
     else if (noCards <= 15) {
         spaceBetween = -cardSize * 0.4;
-    } else if (noCards <= 25) {
+    } else if (noCards <= 20) {
         spaceBetween = -cardSize * 0.6;
     } else {
         spaceBetween = -cardSize * 0.8;

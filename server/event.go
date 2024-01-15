@@ -98,7 +98,9 @@ func DrawCards(event Event, p *Player) error {
 
 	if p.manager.pos == data.From {
 		cards := p.manager.Draw(data.Amount)
-		p.cards = append(p.cards, cards...)
+		if len(p.cards)+data.Amount <= 35 {
+			p.cards = append(p.cards, cards...)
+		}
 
 		// update this player's cards
 		cardsData, err := json.Marshal(p.cards)
