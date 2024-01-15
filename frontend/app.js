@@ -181,9 +181,6 @@ window.onload = function () {
 
             MyPlayerName = name.value;
 
-            document.getElementById("data").hidden = false;
-            document.getElementById("login").hidden = true;
-
             let payload = {
                 name: MyPlayerName
             }
@@ -360,11 +357,12 @@ window.onload = function () {
                     console.log("123");
                     alert("the game is playing, u can not join")
                     CONN.close()
-                    document.getElementById("data").hidden = true;
-                    document.getElementById("login").hidden = false;
+                    document.getElementsByTagName("body")[0].innerHTML = '404 not found, kaka'
                     break;
 
                 case "init_player":
+                    document.getElementById("data").hidden = false;
+                    document.getElementById("login").hidden = true;
                     MyPlayer = Object.assign(new Player, event.payload)
                     // cards
                     for (let i = 0; i < MyPlayer.cards.length; i++) {
