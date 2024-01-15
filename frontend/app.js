@@ -107,6 +107,9 @@ window.onload = function () {
     // html elements
     let name = document.getElementById("nameInput");
     let nameBTN = document.getElementById("nameButton");
+    let curretnCardSlot = document.getElementById("current_card_slot")
+    let drawBtn = document.getElementById("btn_draw")
+
 
     let cardObjs = {
         "num": {
@@ -159,6 +162,17 @@ window.onload = function () {
     setTimeout(function () {
         nameBTN.disabled = false;
 
+        drawBtn.onclick = function (e) {
+            let n = 1
+            if (MyPlayer.ctx.stack2 != 0 || MyPlayer.ctx.stack4 != 0) {
+                n = MyPlayer.ctx.stack2 * 2 + MyPlayer.ctx.stack4 * 4
+            }
+            SendMessage("draw_cards", {
+                from: MyPlayer.id,
+                amount: n
+            })
+        }
+
         nameBTN.onclick = function (e) {
             if (name.value == "") {
                 alert("name field is empty")
@@ -175,6 +189,7 @@ window.onload = function () {
             }
             SendMessage("request_data", payload)
         }
+
 
         function updateUI() {
             let n = MyPlayer.ctx.noplayer;
@@ -257,7 +272,7 @@ window.onload = function () {
                         else if (cardData == "change")
                             card = cardObjs[cardType][cardColor][1]
                         else
-                            alert("updateUI() can not detech this type of card")
+                            alert("updateUI() can not detect this type of card")
                     } else {
                         if (cardData == "skip")
                             card = cardObjs[cardType][cardColor][0]
@@ -266,54 +281,74 @@ window.onload = function () {
                         else if (cardData == "draw")
                             card = cardObjs[cardType][cardColor][2]
                         else
-                            alert("updateUI() can not detech this type of card")
+                            alert("updateUI() can not detect this type of card")
                     }
                 }
                 let cloneObj = card.cloneNode(true)
                 cloneObj.style.left = (cardPos[i] * 100 / cardsElementWidth).toString() + "%"
+                cloneObj.onclick = function (e) {
+                    console.log(cardsElement.childNodes);
+                    for (let i = 0; i < cardsElement.childElementCount; i++) {
+                        if (cardsElement.childNodes[i].firstChild.className.includes("active_card")) {
+                            cardsElement.childNodes[i].firstChild.className = removeAClassName(cardsElement.childNodes[i].firstChild.className, "active_card")
+                        }
+                    }
+
+                    e.target.className += " active_card"
+                }
+                cloneObj.ondblclick = function (e) {
+                    console.log("e.target.id" + e.target.id.toString());
+                    let data = e.target.id.replace("+", "*").split("-")
+                    if (!MyPlayer.checkNextCardIsValid(data)) {
+                        alert("you can not play this card")
+                        return
+                    }
+
+                    let payload = {
+                        id: MyPlayer.id,
+                        card: data,
+                        cardPos: Array.prototype.indexOf.call(cardsElement.childNodes, e.target.parentNode)
+                    }
+                    SendMessage("play_card", payload)
+                }
                 cardsElement.appendChild(cloneObj)
             }
 
+
+            // update current card
+            let card
+            if (MyPlayer.ctx.currData.length != 1) {
+                let cardStr = MyPlayer.ctx.currData
+                let cardColor = cardStr[0]
+                let cardType = cardStr[1]
+                let cardData = cardStr[2]
+                if (cardType == "num")
+                    card = cardObjs[cardType][cardColor][parseInt(cardData)]
+                else { // fun
+                    if (cardColor == "*") {
+                        if (cardData == "draw")
+                            card = cardObjs[cardType][cardColor][0]
+                        else if (cardData == "change")
+                            card = cardObjs[cardType][cardColor][1]
+                        else
+                            alert("updateUI() can not detect this type of card")
+                    } else {
+                        if (cardData == "skip")
+                            card = cardObjs[cardType][cardColor][0]
+                        else if (cardData == "reverse")
+                            card = cardObjs[cardType][cardColor][1]
+                        else if (cardData == "draw")
+                            card = cardObjs[cardType][cardColor][2]
+                        else
+                            alert("updateUI() can not detect this type of card")
+                    }
+                }
+                let cloneObj = card.firstChild.cloneNode(true)
+                cloneObj.className += " current_card"
+                curretnCardSlot.innerHTML = ''
+                curretnCardSlot.appendChild(cloneObj)
+            }
         }
-
-        // submitBTN.onclick = function (e) {
-        //     let nextCardPos = parseInt(nextCard.value)
-        //     if (nextCardPos === undefined) {
-        //         alert("next card is undefined")
-        //     }
-
-        //     if (nextCardPos == -1) {
-        //         let n = 1
-        //         if (MyPlayer.ctx.stack2 != 0 || MyPlayer.ctx.stack4 != 0) {
-        //             n = MyPlayer.ctx.stack2 * 2 + MyPlayer.ctx.stack4 * 4
-        //         }
-        //         SendMessage("draw_cards", {
-        //             from: MyPlayer.id,
-        //             amount: n
-        //         })
-        //         return
-        //     }
-
-        //     if (nextCardPos < 0 ||
-        //         nextCardPos > MyPlayer.cards.length) {
-        //         alert("invalid index")
-        //         return
-        //     }
-
-        //     let data = MyPlayer.cards[nextCardPos].data
-        //     if (!MyPlayer.checkNextCardIsValid(data)) {
-        //         alert("you can not play this card")
-        //         return
-        //     }
-
-        //     let payload = {
-        //         id: MyPlayer.id,
-        //         card: data,
-        //         cardPos: nextCardPos
-        //     }
-        //     SendMessage("play_card", payload)
-        // }
-
         function routeEvent(event) {
             if (event.type === undefined) {
                 alert("no type field in the event");
@@ -321,6 +356,14 @@ window.onload = function () {
             }
 
             switch (event.type) {
+                case "game_is_playing":
+                    console.log("123");
+                    alert("the game is playing, u can not join")
+                    CONN.close()
+                    document.getElementById("data").hidden = true;
+                    document.getElementById("login").hidden = false;
+                    break;
+
                 case "init_player":
                     MyPlayer = Object.assign(new Player, event.payload)
                     // cards
@@ -413,4 +456,17 @@ function calculateCardsPositions(noCards, width, cardSize) {
         res.push(start + i * (cardSize + spaceBetween))
     }
     return res
+}
+
+function removeAClassName(className, needtoberemoved) {
+    let str = className.split(" ")
+    if (str.length != 0) {
+        let newClassName = ""
+        for (let i = 0; i < str.length; i++) {
+            if (str[i] != needtoberemoved)
+                newClassName += str[i] + " "
+        }
+        return newClassName
+    }
+    return className
 }

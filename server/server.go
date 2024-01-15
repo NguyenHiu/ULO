@@ -22,7 +22,7 @@ const (
 	CanStackDraw2        = true
 	CanStackDraw4        = true
 	CanStackDraw4OnDraw2 = true
-	NOCARD               = 6
+	NOCARD               = 15
 )
 
 type Context struct {
@@ -46,8 +46,10 @@ type Server struct {
 	draw2Stack   int
 	draw4Stack   int
 
+	IsPlaying bool
+
 	sortedPlayers []*Player
-	storage       map[string][]Card
+	// storage       map[string][]Card
 
 	handlers map[string]EventHandler
 	sync.RWMutex
@@ -74,14 +76,15 @@ func InitAGame() *Server {
 	}
 
 	s := &Server{
-		cards:         cards,
-		direction:     1,
-		nextID:        0,
-		pos:           0,
-		currCardData:  []string{"*"},
-		handlers:      make(map[string]EventHandler),
-		storage:       make(map[string][]Card),
+		cards:        cards,
+		direction:    1,
+		nextID:       0,
+		pos:          0,
+		currCardData: []string{"*"},
+		handlers:     make(map[string]EventHandler),
+		// storage:       make(map[string][]Card),
 		sortedPlayers: []*Player{},
+		IsPlaying:     false,
 	}
 
 	s.setupEventHandlers()
@@ -192,8 +195,6 @@ func (s *Server) draw1() Card {
 
 func (s *Server) AddPlayer(conn *websocket.Conn) {
 	s.Lock()
-	fmt.Println("s.lock")
-	defer func() { fmt.Println("s.unclock()") }()
 	defer s.Unlock()
 
 	fmt.Println("Request WS Connect from: ", conn.RemoteAddr())
@@ -222,14 +223,19 @@ func (s *Server) RemovePlayer(player *Player) {
 	s.Lock()
 	defer s.Unlock()
 
-	fmt.Println("saved cards: ", player.cards)
-	s.storage[player.name] = player.cards
+	// fmt.Println("saved cards: ", player.cards)
+	// s.storage[player.name] = player.cards
 
 	for idx, ele := range s.sortedPlayers {
 		if ele.conn.RemoteAddr().String() == player.conn.RemoteAddr().String() {
 			s.sortedPlayers = append(append([]*Player{}, s.sortedPlayers[:idx]...), s.sortedPlayers[idx+1:]...)
 			break
 		}
+	}
+
+	if len(s.sortedPlayers) == 0 {
+		s.Reset()
+		return
 	}
 
 	ctxbytes, err := json.Marshal(*s.getContext())
@@ -251,4 +257,34 @@ func (s *Server) RemovePlayer(player *Player) {
 func (s *Server) PrintCurrentState() {
 	fmt.Printf("pos: %v\n", s.pos)
 	fmt.Printf("direction: %v\n", s.direction)
+}
+
+func (s *Server) Reset() {
+	color := []string{"red", "green", "blue", "yellow"}
+	var cards []Card
+	for i := 0; i < 4; i++ {
+		for j := 1; j <= 9; j++ {
+			cards = append(cards, Card{Data: fmt.Sprintf("%v:num:%v", color[i], j)})
+			cards = append(cards, Card{Data: fmt.Sprintf("%v:num:%v", color[i], j)})
+		}
+	}
+	for i := 0; i < 4; i++ {
+		cards = append(cards, Card{Data: fmt.Sprintf("%v:num:0", color[i])})
+		for j := 0; j < 2; j++ {
+			cards = append(cards, Card{Data: fmt.Sprintf("%v:fun:skip", color[i])})
+			cards = append(cards, Card{Data: fmt.Sprintf("%v:fun:reverse", color[i])})
+			cards = append(cards, Card{Data: fmt.Sprintf("%v:fun:draw:2", color[i])})
+		}
+		cards = append(cards, Card{Data: "*:fun:change"})
+		cards = append(cards, Card{Data: "*:fun:draw:4"})
+	}
+	s.cards = cards
+	s.direction = 1
+	s.nextID = 0
+	s.pos = 0
+	s.currCardData = []string{"*"}
+	s.handlers = make(map[string]EventHandler)
+	s.sortedPlayers = []*Player{}
+	s.IsPlaying = false
+	s.setupEventHandlers()
 }

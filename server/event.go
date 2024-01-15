@@ -16,12 +16,13 @@ type Event struct {
 type EventHandler func(event Event, p *Player) error
 
 const (
-	EventUpdateState = "update_state"
-	EventUpdateCards = "update_cards"
-	EventDrawCards   = "draw_cards"
-	EventPlayCard    = "play_card"
-	EventRequestData = "request_data"
-	EventInitPlayer  = "init_player"
+	EventUpdateState   = "update_state"
+	EventUpdateCards   = "update_cards"
+	EventDrawCards     = "draw_cards"
+	EventPlayCard      = "play_card"
+	EventRequestData   = "request_data"
+	EventInitPlayer    = "init_player"
+	EventGameIsPlaying = "game_is_playing"
 )
 
 type PlayCardEvent struct {
@@ -40,6 +41,10 @@ type RequestDataEvent struct {
 }
 
 func PlayCard(event Event, p *Player) error {
+	if !p.manager.IsPlaying {
+		p.manager.IsPlaying = true
+	}
+
 	var data PlayCardEvent
 	err := json.Unmarshal(event.Payload, &data)
 	if err != nil {
@@ -83,6 +88,7 @@ func PlayCard(event Event, p *Player) error {
 }
 
 func DrawCards(event Event, p *Player) error {
+
 	log.Println("DrawCards()")
 	var data DrawCardsEvent
 	err := json.Unmarshal(event.Payload, &data)
@@ -109,6 +115,7 @@ func DrawCards(event Event, p *Player) error {
 		p.manager.draw4Stack = 0
 
 	} else {
+		log.Printf("it's the turn of player having id: %v, name: %v", p.id, p.name)
 		return errors.New("not your turn")
 	}
 
@@ -116,82 +123,91 @@ func DrawCards(event Event, p *Player) error {
 }
 
 func RequestData(event Event, p *Player) error {
+	if p.manager.IsPlaying {
+		emptyPayload, _ := json.Marshal(struct{}{})
+		p.egress <- Event{
+			Type:    EventGameIsPlaying,
+			Payload: emptyPayload,
+		}
+		return nil
+	}
+
 	var data RequestDataEvent
 	err := json.Unmarshal(event.Payload, &data)
 	if err != nil {
 		return fmt.Errorf("can not unmarshal request data, err: %v", err)
 	}
 
-	if cards, ok := p.manager.storage[data.Name]; ok {
-		log.Println("requestData, found data")
-		fmt.Println("cards: ", cards)
+	// if cards, ok := p.manager.storage[data.Name]; ok {
+	// 	log.Println("requestData, found data")
+	// 	fmt.Println("cards: ", cards)
 
-		p.cards = cards
-		p.name = data.Name
-		p.manager.sortedPlayers = append(p.manager.sortedPlayers, p)
-		ctx := *p.manager.getContext()
-		playerSlotByte, err := json.Marshal(&PlayerSlot{
-			ID:    p.id,
-			Cards: p.cards,
-			Ctx:   ctx,
-		})
+	// 	p.cards = cards
+	// 	p.name = data.Name
+	// 	p.manager.sortedPlayers = append(p.manager.sortedPlayers, p)
+	// 	ctx := *p.manager.getContext()
+	// 	playerSlotByte, err := json.Marshal(&PlayerSlot{
+	// 		ID:    p.id,
+	// 		Cards: p.cards,
+	// 		Ctx:   ctx,
+	// 	})
 
-		if err != nil {
-			return fmt.Errorf("can not marshal cards, err: %v", err)
-		}
-		p.egress <- Event{
-			Type:    EventInitPlayer,
-			Payload: playerSlotByte,
-		}
+	// 	if err != nil {
+	// 		return fmt.Errorf("can not marshal cards, err: %v", err)
+	// 	}
+	// 	p.egress <- Event{
+	// 		Type:    EventInitPlayer,
+	// 		Payload: playerSlotByte,
+	// 	}
 
-		payload, err := json.Marshal(ctx)
-		if err != nil {
-			return fmt.Errorf("can not marshal context, error: %v", err)
-		}
-		updateStateEvent := Event{
-			Type:    EventUpdateState,
-			Payload: payload,
-		}
-		for _, pp := range p.manager.sortedPlayers {
-			if pp.name != p.name {
-				pp.egress <- updateStateEvent
-			}
-		}
-	} else {
-		log.Println("requestData, not found data")
+	// 	payload, err := json.Marshal(ctx)
+	// 	if err != nil {
+	// 		return fmt.Errorf("can not marshal context, error: %v", err)
+	// 	}
+	// 	updateStateEvent := Event{
+	// 		Type:    EventUpdateState,
+	// 		Payload: payload,
+	// 	}
+	// 	for _, pp := range p.manager.sortedPlayers {
+	// 		if pp.name != p.name {
+	// 			pp.egress <- updateStateEvent
+	// 		}
+	// 	}
+	// } else {
+	log.Println("requestData, not found data")
 
-		p.cards = p.manager.InitAPlayerCardSet(NOCARD)
-		p.name = data.Name
-		p.manager.sortedPlayers = append(p.manager.sortedPlayers, p)
-		ctx := *p.manager.getContext()
-		playerSlotByte, err := json.Marshal(&PlayerSlot{
-			ID:    p.id,
-			Cards: p.cards,
-			Ctx:   ctx,
-		})
+	p.cards = p.manager.InitAPlayerCardSet(NOCARD)
+	p.name = data.Name
+	p.manager.sortedPlayers = append(p.manager.sortedPlayers, p)
+	ctx := *p.manager.getContext()
+	playerSlotByte, err := json.Marshal(&PlayerSlot{
+		ID:    p.id,
+		Cards: p.cards,
+		Ctx:   ctx,
+	})
 
-		if err != nil {
-			return fmt.Errorf("can not marshal new cards, err: %v", err)
-		}
-		p.egress <- Event{
-			Type:    EventInitPlayer,
-			Payload: playerSlotByte,
-		}
+	if err != nil {
+		return fmt.Errorf("can not marshal new cards, err: %v", err)
+	}
+	p.egress <- Event{
+		Type:    EventInitPlayer,
+		Payload: playerSlotByte,
+	}
 
-		payload, err := json.Marshal(ctx)
-		if err != nil {
-			return fmt.Errorf("can not marshal context, error: %v", err)
-		}
-		updateStateEvent := Event{
-			Type:    EventUpdateState,
-			Payload: payload,
-		}
-		for _, pp := range p.manager.sortedPlayers {
-			if pp.name != p.name {
-				pp.egress <- updateStateEvent
-			}
+	payload, err := json.Marshal(ctx)
+	if err != nil {
+		return fmt.Errorf("can not marshal context, error: %v", err)
+	}
+	updateStateEvent := Event{
+		Type:    EventUpdateState,
+		Payload: payload,
+	}
+	for _, pp := range p.manager.sortedPlayers {
+		if pp.name != p.name {
+			pp.egress <- updateStateEvent
 		}
 	}
+	// }
 
 	return nil
 }

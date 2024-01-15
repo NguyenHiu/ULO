@@ -20,7 +20,7 @@ var (
 func main() {
 	http.Handle("/", http.FileServer(http.Dir("./frontend")))
 	http.HandleFunc("/ws", handleWS)
-	http.ListenAndServe(":8000", nil)
+	http.ListenAndServe(":8080", nil)
 }
 
 func handleWS(w http.ResponseWriter, r *http.Request) {
