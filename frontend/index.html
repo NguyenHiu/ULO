@@ -6,6 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+
         .center-text {
             text-align: center;
         }
@@ -28,27 +36,60 @@
         }
 
         #data {
-            height: 60vh;
-            margin: 20px;
+            position: relative;
+            height: 100vh;
         }
 
         #top {
             display: flex;
             justify-content: space-evenly;
-            margin: 0px 50px;
+            background-color: red;
+            height: 10vh;
+            min-height: 10vh;
+            max-height: 10vh;
         }
 
         #side {
             display: flex;
             flex-direction: row;
             justify-content: space-between;
-            height: 100%;
+            min-height: 50vh;
+            max-height: 50vh;
+            height: 50vh;
         }
 
         .side {
             display: flex;
             flex-direction: column;
             justify-content: space-evenly;
+            background-color: green;
+        }
+
+        #player-cards {
+            background-color: blue;
+            height: 40vh;
+        }
+
+        #cards {
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            left: 50%;
+            transform: translate(-50%, 0);
+            /* height: 100%; */
+            width: 100%;
+        }
+
+        .card {
+            position: absolute;
+            background-color: purple;
+            /* border: 2px solid black; */
+            /* height: 100%; */
+            width: 100%;
+        }
+
+        .card img {
+            width: 10vw;
         }
     </style>
 </head>
@@ -56,7 +97,7 @@
 <body style="background-color: white;">
     <div id="login">
         <div id="welcome">
-            <h1 class="center-text">ULO</h1>
+            <h1 class="center-text" style="margin: 0px">ULO</h1>
             <p class="center-text">Welcome to ma gem</p>
             <p class="center-text">All the logic in this game is based on our house-rules!</p>
         </div>
@@ -78,8 +119,74 @@
             <div id="left" class="side"> </div>
             <div id="right" class="side"> </div>
         </div>
+        <div id="player-cards">
+            <div id="cards">
+            </div>
+        </div>
     </div>
 
+
+    <div hidden id="images">
+        <img src="./cards/blue-num-0.png" id="blue-num-0">
+        <img src="./cards/blue-num-1.png" id="blue-num-1">
+        <img src="./cards/blue-num-2.png" id="blue-num-2">
+        <img src="./cards/blue-num-3.png" id="blue-num-3">
+        <img src="./cards/blue-num-4.png" id="blue-num-4">
+        <img src="./cards/blue-num-5.png" id="blue-num-5">
+        <img src="./cards/blue-num-6.png" id="blue-num-6">
+        <img src="./cards/blue-num-7.png" id="blue-num-7">
+        <img src="./cards/blue-num-8.png" id="blue-num-8">
+        <img src="./cards/blue-num-9.png" id="blue-num-9">
+        <img src="./cards/blue-fun-draw-2.png" id="blue-fun-draw-2">
+        <img src="./cards/blue-fun-reverse.png" id="blue-fun-reverse">
+        <img src="./cards/blue-fun-skip.png" id="blue-fun-skip">
+
+        <img src="./cards/red-num-0.png" id="red-num-0">
+        <img src="./cards/red-num-1.png" id="red-num-1">
+        <img src="./cards/red-num-2.png" id="red-num-2">
+        <img src="./cards/red-num-3.png" id="red-num-3">
+        <img src="./cards/red-num-4.png" id="red-num-4">
+        <img src="./cards/red-num-5.png" id="red-num-5">
+        <img src="./cards/red-num-6.png" id="red-num-6">
+        <img src="./cards/red-num-7.png" id="red-num-7">
+        <img src="./cards/red-num-8.png" id="red-num-8">
+        <img src="./cards/red-num-9.png" id="red-num-9">
+        <img src="./cards/red-fun-draw-2.png" id="red-fun-draw-2">
+        <img src="./cards/red-fun-reverse.png" id="red-fun-reverse">
+        <img src="./cards/red-fun-skip.png" id="red-fun-skip">
+
+        <img src="./cards/green-num-0.png" id="green-num-0">
+        <img src="./cards/green-num-1.png" id="green-num-1">
+        <img src="./cards/green-num-2.png" id="green-num-2">
+        <img src="./cards/green-num-3.png" id="green-num-3">
+        <img src="./cards/green-num-4.png" id="green-num-4">
+        <img src="./cards/green-num-5.png" id="green-num-5">
+        <img src="./cards/green-num-6.png" id="green-num-6">
+        <img src="./cards/green-num-7.png" id="green-num-7">
+        <img src="./cards/green-num-8.png" id="green-num-8">
+        <img src="./cards/green-num-9.png" id="green-num-9">
+        <img src="./cards/green-fun-draw-2.png" id="green-fun-draw-2">
+        <img src="./cards/green-fun-reverse.png" id="green-fun-reverse">
+        <img src="./cards/green-fun-skip.png" id="green-fun-skip">
+
+        <img src="./cards/yellow-num-0.png" id="yellow-num-0">
+        <img src="./cards/yellow-num-1.png" id="yellow-num-1">
+        <img src="./cards/yellow-num-2.png" id="yellow-num-2">
+        <img src="./cards/yellow-num-3.png" id="yellow-num-3">
+        <img src="./cards/yellow-num-4.png" id="yellow-num-4">
+        <img src="./cards/yellow-num-5.png" id="yellow-num-5">
+        <img src="./cards/yellow-num-6.png" id="yellow-num-6">
+        <img src="./cards/yellow-num-7.png" id="yellow-num-7">
+        <img src="./cards/yellow-num-8.png" id="yellow-num-8">
+        <img src="./cards/yellow-num-9.png" id="yellow-num-9">
+        <img src="./cards/yellow-fun-draw-2.png" id="yellow-fun-draw-2">
+        <img src="./cards/yellow-fun-reverse.png" id="yellow-fun-reverse">
+        <img src="./cards/yellow-fun-skip.png" id="yellow-fun-skip">
+
+        <img src="./cards/+-fun-change.png" id="+-fun-change">
+        <img src="./cards/+-fun-draw-4.png" id="+-fun-draw-4">
+
+    </div>
 
     <script src="app.js"></script>
 </body>

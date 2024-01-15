@@ -65,8 +65,7 @@ func (p *Player) RemoveCardAt(pos int) {
 	p.cards = RemoveACard(p.cards, pos)
 }
 
-type PlayerData struct {
-	Name  string  `json:"name"`
+type PlayerSlot struct {
 	ID    int     `json:"id"`
 	Cards []Card  `json:"cards"`
 	Ctx   Context `json:"ctx"`

@@ -69,8 +69,8 @@ func InitAGame() *Server {
 			cards = append(cards, Card{Data: fmt.Sprintf("%v:fun:reverse", color[i])})
 			cards = append(cards, Card{Data: fmt.Sprintf("%v:fun:draw:2", color[i])})
 		}
-		cards = append(cards, Card{Data: fmt.Sprintf("%v:fun:change", color[i])})
-		cards = append(cards, Card{Data: fmt.Sprintf("%v:fun:draw:4", color[i])})
+		cards = append(cards, Card{Data: "*:fun:change"})
+		cards = append(cards, Card{Data: "*:fun:draw:4"})
 	}
 
 	s := &Server{
@@ -214,51 +214,8 @@ func (s *Server) AddPlayer(conn *websocket.Conn) {
 		name:    "",
 	}
 
-	s.sortedPlayers = append(s.sortedPlayers, player)
-
-	newCtx := *s.getContext()
-
-	playerData := PlayerData{
-		ID:    player.id,
-		Cards: player.cards,
-		Ctx:   newCtx,
-		Name:  player.name,
-	}
-
-	log.Printf("New Player: \n\tID:%v\n\tCards:%v", playerData.ID, playerData.Cards)
-
-	playerDataByte, err := json.Marshal(playerData)
-	if err != nil {
-		log.Println("marshalling player data error: ", err)
-		return
-	}
-
-	initPlayerEvent := Event{
-		Type:    EventInitPlayer,
-		Payload: playerDataByte,
-	}
-
-	ctxbytes, err := json.Marshal(newCtx)
-	if err != nil {
-		log.Println("masrhalling context error: ", err)
-		return
-	}
-
-	updateStateEvent := Event{
-		Type:    EventUpdateState,
-		Payload: ctxbytes,
-	}
-
 	go player.readMessage()
 	go player.writeMessage()
-
-	player.egress <- initPlayerEvent
-
-	for _, p := range s.sortedPlayers {
-		if p.id != player.id {
-			p.egress <- updateStateEvent
-		}
-	}
 }
 
 func (s *Server) RemovePlayer(player *Player) {

@@ -125,29 +125,72 @@ func RequestData(event Event, p *Player) error {
 	if cards, ok := p.manager.storage[data.Name]; ok {
 		log.Println("requestData, found data")
 		fmt.Println("cards: ", cards)
+
 		p.cards = cards
-		cardsData, err := json.Marshal(p.cards)
+		p.name = data.Name
+		p.manager.sortedPlayers = append(p.manager.sortedPlayers, p)
+		ctx := *p.manager.getContext()
+		playerSlotByte, err := json.Marshal(&PlayerSlot{
+			ID:    p.id,
+			Cards: p.cards,
+			Ctx:   ctx,
+		})
+
 		if err != nil {
 			return fmt.Errorf("can not marshal cards, err: %v", err)
 		}
 		p.egress <- Event{
-			Type:    EventUpdateCards,
-			Payload: cardsData,
+			Type:    EventInitPlayer,
+			Payload: playerSlotByte,
+		}
+
+		payload, err := json.Marshal(ctx)
+		if err != nil {
+			return fmt.Errorf("can not marshal context, error: %v", err)
+		}
+		updateStateEvent := Event{
+			Type:    EventUpdateState,
+			Payload: payload,
+		}
+		for _, pp := range p.manager.sortedPlayers {
+			if pp.name != p.name {
+				pp.egress <- updateStateEvent
+			}
 		}
 	} else {
 		log.Println("requestData, not found data")
+
 		p.cards = p.manager.InitAPlayerCardSet(NOCARD)
 		p.name = data.Name
-		newCards, err := json.Marshal(p.cards)
+		p.manager.sortedPlayers = append(p.manager.sortedPlayers, p)
+		ctx := *p.manager.getContext()
+		playerSlotByte, err := json.Marshal(&PlayerSlot{
+			ID:    p.id,
+			Cards: p.cards,
+			Ctx:   ctx,
+		})
+
 		if err != nil {
 			return fmt.Errorf("can not marshal new cards, err: %v", err)
 		}
-		event := Event{
-			Type:    EventUpdateCards,
-			Payload: newCards,
+		p.egress <- Event{
+			Type:    EventInitPlayer,
+			Payload: playerSlotByte,
 		}
 
-		p.egress <- event
+		payload, err := json.Marshal(ctx)
+		if err != nil {
+			return fmt.Errorf("can not marshal context, error: %v", err)
+		}
+		updateStateEvent := Event{
+			Type:    EventUpdateState,
+			Payload: payload,
+		}
+		for _, pp := range p.manager.sortedPlayers {
+			if pp.name != p.name {
+				pp.egress <- updateStateEvent
+			}
+		}
 	}
 
 	return nil
