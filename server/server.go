@@ -46,7 +46,9 @@ type Server struct {
 	draw2Stack   int
 	draw4Stack   int
 
-	IsPlaying bool
+	IsPlaying    bool
+	IsFreezing   bool
+	FreezeReason string
 
 	sortedPlayers []*Player
 	// storage       map[string][]Card
@@ -101,6 +103,7 @@ func (s *Server) setupEventHandlers() {
 	s.handlers[EventPlayCard] = PlayCard
 	s.handlers[EventDrawCards] = DrawCards
 	s.handlers[EventRequestData] = RequestData
+	s.handlers[EventChooseColorResponse] = ChooseColorResponse
 }
 
 func (s *Server) getContext() *Context {
@@ -167,11 +170,13 @@ func (s *Server) ReceiveAValidCard(card Card) {
 			s.currCardData = data
 		}
 	}
-	s.pos = (s.pos + s.direction) % len(s.sortedPlayers)
+	noPlayers := len(s.sortedPlayers)
+	s.pos = ((s.pos+s.direction)%noPlayers + noPlayers) % noPlayers
 }
 
 func (c *Server) skip1() {
-	c.pos += c.direction
+	noPlayers := len(c.sortedPlayers)
+	c.pos = ((c.pos+c.direction)%noPlayers + noPlayers) % noPlayers
 }
 
 func (s *Server) reverse() {

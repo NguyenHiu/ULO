@@ -41,6 +41,12 @@ class Player {
     checkNumCard(data) {
         if ((this.ctx.stack2 != 0) || (this.ctx.stack4 != 0))
             return false;
+
+        console.log("checkNumCard()");
+        console.log(" - currData:");
+        console.log(this.ctx.currData);
+        console.log(" - data: ");
+        console.log(data);
         if (this.ctx.currData[1] == "num")
             return (this.ctx.currData[0] == data[0]) ||
                 (this.ctx.currData[2] == data[2]);
@@ -49,35 +55,56 @@ class Player {
     }
 
     checkFunCard(data) {
-        if (data[2] == "change")
-            return this.ctx.stack2 == 0 && this.ctx.stack4 == 0;
+        console.log("this.ctx.stack2: " + this.ctx.stack2.toString());
+        console.log("this.ctx.stack4: " + this.ctx.stack4.toString());
 
-        if ((data[2] == "skip") || data[2] == "reverse")
-            return (this.ctx.stack2 == 0) && (this.ctx.stack4 == 0) &&
-                (this.ctx.currData[0] == data[0] || this.ctx.currData[2] == data[2]);
+        switch (data[2]) {
+            case "change":
+                return (this.ctx.stack2 == 0) && (this.ctx.stack4 == 0)
 
-        if (this.ctx.currData[2] == "draw") {
-            switch (this.ctx.currData[3]) {
-                case "4":
-                    return this.ctx.allowStack4 && (data[2] == "draw") && data[3] == "4";
-                case "2":
-                    if ((data[2] == "draw") && data[3] == "2")
-                        return this.ctx.allowStack2;
-                    else if ((data[2] == "draw") && data[3] == "4")
-                        return this.ctx.allowStack4Over2;
-                    break;
+            case "skip":
+            case "reverse":
+                return (this.ctx.stack2 == 0) && (this.ctx.stack4 == 0) && (
+                    (this.ctx.currData[2] == data[2]) ||
+                    (this.ctx.currData[0] == data[0])
+                )
 
-            }
+            case "draw":
+                if (this.ctx.currData[2] == "draw") {
+                    if (data[3] == "2") {
+                        return (this.ctx.currData[3] == "2") && this.ctx.allowStack2
+                    } else if (data[3] == "4") {
+                        return ((this.ctx.currData[3] == "4") && this.ctx.allowStack4) ||
+                            ((this.ctx.currData[3] == "2") && this.ctx.allowStack4Over2)
+                    } else {
+                        alert("can not detect the card")
+                    }
+                } else {
+                    return true;
+                }
+
+            default:
+                alert("what kind of functional card is this???")
         }
 
-        return true;
+        return false;
+    }
+
+    chooseColor() {
+        document.getElementById("cover").style.visibility = "visible"
+        document.getElementById("choose-color").style.visibility = "visible"
     }
 
     checkNextCardIsValid(data) {
+        console.log("current Data: ");
+        console.log(this.ctx.currData);
+
         // data: strng array
-        if (this.ctx.currData == "*")
+        if (this.ctx.currData[0] == "**")
+            return false;
+        else if (this.ctx.currData[0] == "*")
             return true;
-        if (data[1] == "num") {
+        else if (data[1] == "num") {
             return this.checkNumCard(data);
         }
         else {
@@ -109,6 +136,11 @@ window.onload = function () {
     let nameBTN = document.getElementById("nameButton");
     let curretnCardSlot = document.getElementById("current_card_slot")
     let drawBtn = document.getElementById("btn_draw")
+
+    let chooseColor_red = document.getElementById("choose-color-red")
+    let chooseColor_green = document.getElementById("choose-color-green")
+    let chooseColor_blue = document.getElementById("choose-color-blue")
+    let chooseColor_yellow = document.getElementById("choose-color-yellow")
 
 
     let cardObjs = {
@@ -168,7 +200,7 @@ window.onload = function () {
                 n = MyPlayer.ctx.stack2 * 2 + MyPlayer.ctx.stack4 * 4
             }
             SendMessage("draw_cards", {
-                from: MyPlayer.id,
+                id: MyPlayer.id,
                 amount: n
             })
         }
@@ -185,6 +217,45 @@ window.onload = function () {
                 name: MyPlayerName
             }
             SendMessage("request_data", payload)
+        }
+
+        chooseColor_red.onclick = function (e) {
+            let payload = {
+                color: "red"
+            }
+            SendMessage("choose_color_response", payload)
+            document.getElementById("choose-color").style.visibility = "hidden"
+            document.getElementById("cover").style.visibility = "hidden"
+        }
+
+
+        chooseColor_green.onclick = function (e) {
+            let payload = {
+                color: "green"
+            }
+            SendMessage("choose_color_response", payload)
+            document.getElementById("choose-color").style.visibility = "hidden"
+            document.getElementById("cover").style.visibility = "hidden"
+        }
+
+
+        chooseColor_blue.onclick = function (e) {
+            let payload = {
+                color: "blue"
+            }
+            SendMessage("choose_color_response", payload)
+            document.getElementById("choose-color").style.visibility = "hidden"
+            document.getElementById("cover").style.visibility = "hidden"
+        }
+
+
+        chooseColor_yellow.onclick = function (e) {
+            let payload = {
+                color: "yellow"
+            }
+            SendMessage("choose_color_response", payload)
+            document.getElementById("choose-color").style.visibility = "hidden"
+            document.getElementById("cover").style.visibility = "hidden"
         }
 
 
@@ -248,7 +319,6 @@ window.onload = function () {
             // update player's cards
             let cardsElement = document.getElementById("cards")
             let cardsElementWidth = cardsElement.offsetWidth
-            console.log("cardsElemetnWidth: " + cardsElementWidth.toString());
             let cardPos = calculateCardsPositions(MyPlayer.cards.length, cardsElementWidth, 10 / (100 / document.documentElement.clientWidth))
             cardsElement.innerHTML = ''
             for (let i = 0; i < MyPlayer.cards.length; i++) {
@@ -266,8 +336,10 @@ window.onload = function () {
                             card = cardObjs[cardType][cardColor][0]
                         else if (cardData == "change")
                             card = cardObjs[cardType][cardColor][1]
-                        else
+                        else {
+                            console.log("updateUI can not detect this card");
                             alert("updateUI() can not detect this type of card")
+                        }
                     } else {
                         if (cardData == "skip")
                             card = cardObjs[cardType][cardColor][0]
@@ -275,8 +347,10 @@ window.onload = function () {
                             card = cardObjs[cardType][cardColor][1]
                         else if (cardData == "draw")
                             card = cardObjs[cardType][cardColor][2]
-                        else
+                        else {
+                            console.log("updateUI can not detect this card");
                             alert("updateUI() can not detect this type of card")
+                        }
                     }
                 }
                 let cloneObj = card.cloneNode(true)
@@ -334,8 +408,10 @@ window.onload = function () {
                             card = cardObjs[cardType][cardColor][1]
                         else if (cardData == "draw")
                             card = cardObjs[cardType][cardColor][2]
-                        else
-                            alert("updateUI() can not detect this type of card")
+                        else {
+                            card = cardObjs["num"][cardColor][0]
+                            // alert("updateUI() can not detect this type of card")
+                        }
                     }
                 }
                 let cloneObj = card.firstChild.cloneNode(true)
@@ -381,6 +457,10 @@ window.onload = function () {
                     MyPlayer.cards = []
                     MyPlayer.addNewCards(event.payload)
                     updateUI();
+                    break;
+
+                case "choose_color":
+                    MyPlayer.chooseColor()
                     break;
                 default:
                     alert("do not support this type of message");
@@ -443,12 +523,9 @@ function calculateCardsPositions(noCards, width, cardSize) {
         spaceBetween = -cardSize * 0.8;
     }
     let cardsWidth = noCards * cardSize + (noCards - 1) * spaceBetween
-    console.log("cardsWidth: " + cardsWidth.toString());
-    console.log("width: " + width.toString());
     let start = width / 2 - cardsWidth / 2
     let res = []
     for (let i = 0; i < noCards; i++) {
-        console.log(start + i * (cardSize + spaceBetween));
         res.push(start + i * (cardSize + spaceBetween))
     }
     return res
@@ -468,8 +545,6 @@ function removeAClassName(className, needtoberemoved) {
 }
 
 function createPlayerObject(name, noCards) {
-    console.log("name: " + name);
-
     if (name.length > 6) {
         name = name.slice(0, 7)
     }

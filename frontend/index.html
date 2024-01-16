@@ -135,6 +135,36 @@
         .player p {
             text-align: center;
         }
+
+        #choose-color {
+            position: absolute;
+            left: 50%;
+            top: 40%;
+            transform: translate(-50%, -50%);
+            /* background-color: aqua; */
+            display: flex;
+            flex-direction: row;
+            visibility: hidden;
+        }
+
+        #choose-color>div>div {
+            border: 1px solid black;
+            border-radius: 10px;
+            width: 10vw;
+            height: 10vh;
+            margin: 5px;
+        }
+
+        #cover {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.5);
+            visibility: hidden;
+        }
     </style>
 </head>
 
@@ -168,6 +198,18 @@
         <div id="draw_button"><button id="btn_draw">Draw</button></div>
         <div id="player-cards">
             <div id="cards">
+            </div>
+        </div>
+
+        <div id="cover"></div>
+        <div id="choose-color">
+            <div>
+                <div id="choose-color-red" style="background-color: red;"></div>
+                <div id="choose-color-green" style="background-color: green;"></div>
+            </div>
+            <div>
+                <div id="choose-color-blue" style="background-color: blue;"></div>
+                <div id="choose-color-yellow" style="background-color: yellow;"></div>
             </div>
         </div>
     </div>
