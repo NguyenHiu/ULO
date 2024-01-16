@@ -22,7 +22,7 @@ const (
 	CanStackDraw2        = true
 	CanStackDraw4        = true
 	CanStackDraw4OnDraw2 = true
-	NOCARD               = 15
+	NOCARD               = 6
 )
 
 type Context struct {

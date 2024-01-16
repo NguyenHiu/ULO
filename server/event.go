@@ -116,6 +116,15 @@ func DrawCards(event Event, p *Player) error {
 		p.manager.draw2Stack = 0
 		p.manager.draw4Stack = 0
 
+		payload, _ := json.Marshal(*p.manager.getContext())
+		updateCtxEvent := Event{
+			Type:    EventUpdateState,
+			Payload: payload,
+		}
+		for _, pp := range p.manager.sortedPlayers {
+			pp.egress <- updateCtxEvent
+		}
+
 	} else {
 		log.Printf("it's the turn of player having id: %v, name: %v", p.id, p.name)
 		return errors.New("not your turn")

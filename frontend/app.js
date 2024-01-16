@@ -189,6 +189,7 @@ window.onload = function () {
 
 
         function updateUI() {
+
             let n = MyPlayer.ctx.noplayer;
             let names = [];
             let noCards = [];
@@ -222,25 +223,22 @@ window.onload = function () {
                 let i = 1
                 right.innerHTML = ''
                 for (let j = position.side - 1; j >= 0; j--) {
-                    let newObj = document.createElement("p")
-                    newObj.innerText = names[i + j] + ", " + noCards[i + j]
-                    right.appendChild(newObj)
+                    let obj = createPlayerObject(names[i + j], noCards[i + j])
+                    right.appendChild(obj)
                 }
                 i += position.side
 
                 top.innerHTML = ''
                 for (let j = position.top - 1; j >= 0; j--) {
-                    let newObj = document.createElement("p")
-                    newObj.innerText = names[i + j] + ", " + noCards[i + j]
-                    top.appendChild(newObj)
+                    let obj = createPlayerObject(names[i + j], noCards[i + j])
+                    top.appendChild(obj)
                 }
                 i += position.top
 
                 left.innerHTML = ''
                 for (let j = 0; j < position.side; j++) {
-                    let newObj = document.createElement("p")
-                    newObj.innerText = names[i + j] + ", " + noCards[i + j]
-                    left.appendChild(newObj)
+                    let obj = createPlayerObject(names[i + j], noCards[i + j])
+                    left.appendChild(obj)
                 }
             } else {
                 console.log("context: ");
@@ -467,4 +465,23 @@ function removeAClassName(className, needtoberemoved) {
         return newClassName
     }
     return className
+}
+
+function createPlayerObject(name, noCards) {
+    console.log("name: " + name);
+
+    if (name.length > 6) {
+        name = name.slice(0, 7)
+    }
+
+    let newObj = document.createElement("div")
+    newObj.className += " player";
+    let p1 = document.createElement("p")
+    p1.innerHTML = name
+    let p2 = document.createElement("p")
+    p2.innerHTML = noCards
+    newObj.appendChild(p1)
+    newObj.appendChild(p2)
+
+    return newObj
 }
