@@ -15,7 +15,8 @@
         }
 
         * {
-            margin: 0
+            margin: 0;
+            font-family: monospace;
         }
 
         .center-text {
@@ -48,9 +49,10 @@
             display: flex;
             justify-content: space-evenly;
             /* background-color: red; */
-            height: 10vh;
-            min-height: 10vh;
-            max-height: 10vh;
+            height: 10vw;
+            min-height: 10vw;
+            max-height: 10vw;
+            align-items: center;
         }
 
         #side {
@@ -127,8 +129,6 @@
             padding: 5px;
             border: 2px solid black;
             border-radius: 5px;
-            height: 5vh;
-            width: 5vw;
             /* background-color: red; */
         }
 
@@ -165,6 +165,17 @@
             background-color: rgba(0, 0, 0, 0.5);
             visibility: hidden;
         }
+
+        #player-info {
+            /* background-color: red; */
+            position: absolute;
+            bottom: 0;
+
+        }
+
+        .current-player {
+            background-color: yellow;
+        }
     </style>
 </head>
 
@@ -200,6 +211,8 @@
             <div id="cards">
             </div>
         </div>
+
+        <div id="player-info"></div>
 
         <div id="cover"></div>
         <div id="choose-color">

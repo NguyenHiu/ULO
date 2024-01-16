@@ -14,7 +14,7 @@ class Card {
 }
 
 class Context {
-    constructor(currData, stack2, stack4, allowStack2, allowStack4, allowStack4Over2, noplayer, playernames, playernocards) {
+    constructor(currData, stack2, stack4, allowStack2, allowStack4, allowStack4Over2, noplayer, playernames, playernocards, currentPlayerName) {
         this.currData = currData
         this.stack2 = stack2
         this.stack4 = stack4
@@ -24,6 +24,7 @@ class Context {
         this.noplayer = noplayer
         this.playernames = playernames
         this.playernocards = playernocards
+        this.currentPlayerName = currentPlayerName
     }
 }
 
@@ -295,6 +296,8 @@ window.onload = function () {
                 right.innerHTML = ''
                 for (let j = position.side - 1; j >= 0; j--) {
                     let obj = createPlayerObject(names[i + j], noCards[i + j])
+                    if (names[i + j] == MyPlayer.ctx.currentPlayerName)
+                        obj.className += " current-player"
                     right.appendChild(obj)
                 }
                 i += position.side
@@ -302,6 +305,8 @@ window.onload = function () {
                 top.innerHTML = ''
                 for (let j = position.top - 1; j >= 0; j--) {
                     let obj = createPlayerObject(names[i + j], noCards[i + j])
+                    if (names[i + j] == MyPlayer.ctx.currentPlayerName)
+                        obj.className += " current-player"
                     top.appendChild(obj)
                 }
                 i += position.top
@@ -309,11 +314,24 @@ window.onload = function () {
                 left.innerHTML = ''
                 for (let j = 0; j < position.side; j++) {
                     let obj = createPlayerObject(names[i + j], noCards[i + j])
+                    if (names[i + j] == MyPlayer.ctx.currentPlayerName)
+                        obj.className += " current-player"
                     left.appendChild(obj)
                 }
             } else {
                 console.log("context: ");
                 console.log(MyPlayer.ctx);
+            }
+
+            // this player 
+            {
+                let playerInfo = document.getElementById("player-info")
+                let obj = createPlayerObject(MyPlayerName, MyPlayer.cards.length)
+                if (MyPlayerName == MyPlayer.ctx.currentPlayerName)
+                    obj.className += " current-player"
+                obj.style.margin = "5px"
+                playerInfo.innerHTML = ''
+                playerInfo.appendChild(obj)
             }
 
             // update player's cards
@@ -550,13 +568,13 @@ function createPlayerObject(name, noCards) {
     }
 
     let newObj = document.createElement("div")
-    newObj.className += " player";
     let p1 = document.createElement("p")
     p1.innerHTML = name
     let p2 = document.createElement("p")
     p2.innerHTML = noCards
     newObj.appendChild(p1)
     newObj.appendChild(p2)
+    newObj.className += " player";
 
     return newObj
 }

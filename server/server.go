@@ -26,15 +26,16 @@ const (
 )
 
 type Context struct {
-	CurrData         []string `json:"currData"`
-	Stack2           int      `json:"stack2"`
-	Stack4           int      `json:"stack4"`
-	AllowStack2      bool     `json:"allowStack2"`
-	AllowStack4      bool     `json:"allowStack4"`
-	AllowStack4Over2 bool     `json:"allowStack4Over2"`
-	NoPlayer         int      `json:"noplayer"`
-	PlayerNames      []string `json:"playernames"`
-	PlayerNoCards    []int    `json:"playernocards"`
+	CurrData          []string `json:"currData"`
+	Stack2            int      `json:"stack2"`
+	Stack4            int      `json:"stack4"`
+	AllowStack2       bool     `json:"allowStack2"`
+	AllowStack4       bool     `json:"allowStack4"`
+	AllowStack4Over2  bool     `json:"allowStack4Over2"`
+	NoPlayer          int      `json:"noplayer"`
+	PlayerNames       []string `json:"playernames"`
+	PlayerNoCards     []int    `json:"playernocards"`
+	CurrentPlayerName string   `json:"currentPlayerName"`
 }
 
 type Server struct {
@@ -115,15 +116,16 @@ func (s *Server) getContext() *Context {
 	}
 
 	return &Context{
-		CurrData:         s.currCardData,
-		Stack2:           s.draw2Stack,
-		Stack4:           s.draw4Stack,
-		AllowStack2:      CanStackDraw2,
-		AllowStack4:      CanStackDraw4,
-		AllowStack4Over2: CanStackDraw4OnDraw2,
-		NoPlayer:         len(s.sortedPlayers),
-		PlayerNames:      name,
-		PlayerNoCards:    nocards,
+		CurrData:          s.currCardData,
+		Stack2:            s.draw2Stack,
+		Stack4:            s.draw4Stack,
+		AllowStack2:       CanStackDraw2,
+		AllowStack4:       CanStackDraw4,
+		AllowStack4Over2:  CanStackDraw4OnDraw2,
+		NoPlayer:          len(s.sortedPlayers),
+		PlayerNames:       name,
+		PlayerNoCards:     nocards,
+		CurrentPlayerName: s.sortedPlayers[s.pos].name,
 	}
 }
 
