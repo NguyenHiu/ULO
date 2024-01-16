@@ -2,6 +2,7 @@ html, body {
     height: 100%;
     width: 100%;
     margin: 0;
+    overflow: hidden;
 }
 
 * {
@@ -36,7 +37,7 @@ html, body {
 #top {
     display: flex;
     justify-content: space-evenly;
-    background-color: red;
+    /* background-color: red; */
     height: 10vw;
     min-height: 10vw;
     max-height: 10vw;
@@ -56,13 +57,13 @@ html, body {
     display: flex;
     flex-direction: column;
     justify-content: space-evenly;
-    background-color: green;
+    /* background-color: green; */
 }
 
 
 .current_card {
     position: absolute;
-    background-color: aqua;
+    /* background-color: aqua; */
     display: inline-block;
     height: 10vh;
     left: 45%;
@@ -92,10 +93,10 @@ html, body {
 }
 
 #player-cards {
-    background-color: blue;
+    /* background-color: blue; */
     display: flex;
     flex-direction: column;
-    height: 40vh;
+    /* height: 40vh; */
     position: relative;
 }
 
@@ -109,7 +110,17 @@ html, body {
 }
 
 #cards-2 {
-    top: 10vh;    
+    top: 12vh;    
+}
+
+#player-info {
+    /* background-color: red; */
+    position: relative;
+    top: 25vh;
+    left: 50%;
+    transform: translate(-50%, 0%);
+    /* top: 100vh; */
+
 }
 
 .card {
@@ -164,13 +175,6 @@ html, body {
     height: 100vh;
     background-color: rgba(0, 0, 0, 0.5);
     visibility: hidden;
-}
-
-#player-info {
-    /* background-color: red; */
-    position: absolute;
-    bottom: 0;
-
 }
 
 .current-player {
