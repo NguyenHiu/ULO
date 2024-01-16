@@ -81,6 +81,15 @@ html, body {
     padding: 20px 30px;
 }
 
+#btn_play {
+    position: absolute;
+    border-radius: 100px;
+    border: 2px solid black;
+    left: 30%;
+    top: 15%;
+    transform: translate(-50%, -50%);
+    padding: 20px 30px;
+}
 
 #player-cards {
     background-color: blue;

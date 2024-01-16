@@ -379,28 +379,21 @@ window.onload = function () {
                 let cloneObj = card.cloneNode(true)
                 cloneObj.style.left = (cardPos1[i] * 100 / cardsElementWidth).toString() + "%"
                 cloneObj.onclick = function (e) {
-                    for (let i = 0; i < cards1.childElementCount; i++) {
-                        if (cards1.childNodes[i].firstChild.className.includes("active_card")) {
-                            cards1.childNodes[i].firstChild.className = removeAClassName(cards1.childNodes[i].firstChild.className, "active_card")
+                    if (e.target.className.includes("active_card")) {
+                        e.target.className = removeAClassName(e.target.className, "active_card")
+                    } else {
+                        for (let i = 0; i < cards1.childNodes.length; i++) {
+                            if (cards1.childNodes[i].firstChild.className.includes("active_card")) {
+                                cards1.childNodes[i].firstChild.className = removeAClassName(cards1.childNodes[i].firstChild.className, "active_card")
+                            }
                         }
+                        for (let i = 0; i < cards2.childNodes.length; i++) {
+                            if (cards2.childNodes[i].firstChild.className.includes("active_card")) {
+                                cards2.childNodes[i].firstChild.className = removeAClassName(cards2.childNodes[i].firstChild.className, "active_card")
+                            }
+                        }
+                        e.target.className += " active_card"
                     }
-
-                    e.target.className += " active_card"
-                }
-                cloneObj.ondblclick = function (e) {
-                    console.log("e.target.id" + e.target.id.toString());
-                    let data = e.target.id.replace("+", "*").split("-")
-                    if (!MyPlayer.checkNextCardIsValid(data)) {
-                        alert("you can not play this card")
-                        return
-                    }
-
-                    let payload = {
-                        id: MyPlayer.id,
-                        card: data,
-                        cardPos: Array.prototype.indexOf.call(cards1.childNodes, e.target.parentNode)
-                    }
-                    SendMessage("play_card", payload)
                 }
                 cards1.appendChild(cloneObj)
             }
@@ -439,29 +432,23 @@ window.onload = function () {
                 let cloneObj = card.cloneNode(true)
                 cloneObj.style.left = (cardPos2[i] * 100 / cardsElementWidth).toString() + "%"
                 cloneObj.onclick = function (e) {
-                    for (let i = 0; i < cards2.childElementCount; i++) {
-                        if (cards2.childNodes[i].firstChild.className.includes("active_card")) {
-                            cards2.childNodes[i].firstChild.className = removeAClassName(cards2.childNodes[i].firstChild.className, "active_card")
+                    if (e.target.className.includes("active_card")) {
+                        e.target.className = removeAClassName(e.target.className, "active_card")
+                    } else {
+                        for (let i = 0; i < cards1.childNodes.length; i++) {
+                            if (cards1.childNodes[i].firstChild.className.includes("active_card")) {
+                                cards1.childNodes[i].firstChild.className = removeAClassName(cards1.childNodes[i].firstChild.className, "active_card")
+                            }
                         }
+                        for (let i = 0; i < cards2.childNodes.length; i++) {
+                            if (cards2.childNodes[i].firstChild.className.includes("active_card")) {
+                                cards2.childNodes[i].firstChild.className = removeAClassName(cards2.childNodes[i].firstChild.className, "active_card")
+                            }
+                        }
+                        e.target.className += " active_card"
                     }
-
-                    e.target.className += " active_card"
                 }
-                cloneObj.ondblclick = function (e) {
-                    console.log("e.target.id" + e.target.id.toString());
-                    let data = e.target.id.replace("+", "*").split("-")
-                    if (!MyPlayer.checkNextCardIsValid(data)) {
-                        alert("you can not play this card")
-                        return
-                    }
 
-                    let payload = {
-                        id: MyPlayer.id,
-                        card: data,
-                        cardPos: Array.prototype.indexOf.call(cards2.childNodes, e.target.parentNode)
-                    }
-                    SendMessage("play_card", payload)
-                }
                 cards2.appendChild(cloneObj)
             }
 
