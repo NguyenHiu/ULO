@@ -25,6 +25,8 @@ const (
 	EventGameIsPlaying       = "game_is_playing"
 	EventChooseColor         = "choose_color"
 	EventChooseColorResponse = "choose_color_response"
+	EventAppearWinner        = "end_game"
+	EventCloseConnect        = "close_connect"
 	// Event
 )
 
@@ -32,6 +34,10 @@ type PlayCardEvent struct {
 	ID       int      `json:"id"`
 	CardData []string `json:"card"`
 	CardPos  int      `json:"cardPos"`
+}
+
+type WinnerPayload struct {
+	Winner string `json:"winner"`
 }
 
 func PlayCard(event Event, p *Player) error {
@@ -70,17 +76,33 @@ func PlayCard(event Event, p *Player) error {
 			p.manager.FreezeReason = "someone is choosing color"
 		}
 
-		// update global context
-		ctx, err := json.Marshal(p.manager.getContext())
-		if err != nil {
-			return fmt.Errorf("PlayCard(), can not marshal context")
-		}
-		event := Event{
-			Type:    EventUpdateState,
-			Payload: ctx,
-		}
-		for _, player := range p.manager.sortedPlayers {
-			player.egress <- event
+		if len(p.cards) == 0 {
+			w := WinnerPayload{Winner: p.name}
+			pl, err := json.Marshal(w)
+			if err != nil {
+				return fmt.Errorf("can not marshal winner's name, err: %v", err)
+			}
+			event := Event{
+				Type:    EventAppearWinner,
+				Payload: pl,
+			}
+			for _, pp := range p.manager.sortedPlayers {
+				pp.egress <- event
+			}
+		} else {
+			// update global context
+			ctx, err := json.Marshal(p.manager.getContext())
+			if err != nil {
+				return fmt.Errorf("PlayCard(), can not marshal context")
+			}
+			event := Event{
+				Type:    EventUpdateState,
+				Payload: ctx,
+			}
+			for _, player := range p.manager.sortedPlayers {
+				player.egress <- event
+			}
+
 		}
 
 		p.manager.PrintCurrentState()
@@ -275,5 +297,10 @@ func ChooseColorResponse(event Event, p *Player) error {
 		pp.egress <- newCtxEvent
 	}
 
+	return nil
+}
+
+func CloseConnectReload(event Event, p *Player) error {
+	p.conn.Close()
 	return nil
 }

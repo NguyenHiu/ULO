@@ -105,6 +105,7 @@ func (s *Server) setupEventHandlers() {
 	s.handlers[EventDrawCards] = DrawCards
 	s.handlers[EventRequestData] = RequestData
 	s.handlers[EventChooseColorResponse] = ChooseColorResponse
+	s.handlers[EventCloseConnect] = CloseConnectReload
 }
 
 func (s *Server) getContext() *Context {

@@ -574,6 +574,16 @@ window.onload = function () {
                 case "choose_color":
                     MyPlayer.chooseColor()
                     break;
+
+                case "end_game":
+                    console.log("event.payload: ");
+                    console.log(event.payload);
+                    alert("player '" + event.payload.winner + "' has 0 card. End game!")
+                    SendMessage("close_connect", {})
+                    CONN.close();
+                    location.reload();
+                    break;
+
                 default:
                     alert("do not support this type of message");
                     break;
