@@ -335,11 +335,16 @@ window.onload = function () {
             }
 
             // update player's cards
-            let cardsElement = document.getElementById("cards")
-            let cardsElementWidth = cardsElement.offsetWidth
-            let cardPos = calculateCardsPositions(MyPlayer.cards.length, cardsElementWidth, 10 / (100 / document.documentElement.clientWidth))
-            cardsElement.innerHTML = ''
-            for (let i = 0; i < MyPlayer.cards.length; i++) {
+            let cards1 = document.getElementById("cards-1")
+            let cards2 = document.getElementById("cards-2")
+            let cardsElementWidth = cards1.offsetWidth
+            let no1 = parseInt(MyPlayer.cards.length / 2)
+            let no2 = MyPlayer.cards.length - no1
+            let cardPos1 = calculateCardsPositions(no1, cardsElementWidth, 20 / 3 / (100 / document.documentElement.clientHeight))
+            let cardPos2 = calculateCardsPositions(no2, cardsElementWidth, 20 / 3 / (100 / document.documentElement.clientHeight))
+            cards1.innerHTML = ''
+            cards2.innerHTML = ''
+            for (let i = 0; i < no1; i++) {
                 let card
                 let cardStr = MyPlayer.cards[i].data
                 let cardColor = cardStr[0]
@@ -372,12 +377,11 @@ window.onload = function () {
                     }
                 }
                 let cloneObj = card.cloneNode(true)
-                cloneObj.style.left = (cardPos[i] * 100 / cardsElementWidth).toString() + "%"
+                cloneObj.style.left = (cardPos1[i] * 100 / cardsElementWidth).toString() + "%"
                 cloneObj.onclick = function (e) {
-                    console.log(cardsElement.childNodes);
-                    for (let i = 0; i < cardsElement.childElementCount; i++) {
-                        if (cardsElement.childNodes[i].firstChild.className.includes("active_card")) {
-                            cardsElement.childNodes[i].firstChild.className = removeAClassName(cardsElement.childNodes[i].firstChild.className, "active_card")
+                    for (let i = 0; i < cards1.childElementCount; i++) {
+                        if (cards1.childNodes[i].firstChild.className.includes("active_card")) {
+                            cards1.childNodes[i].firstChild.className = removeAClassName(cards1.childNodes[i].firstChild.className, "active_card")
                         }
                     }
 
@@ -394,11 +398,71 @@ window.onload = function () {
                     let payload = {
                         id: MyPlayer.id,
                         card: data,
-                        cardPos: Array.prototype.indexOf.call(cardsElement.childNodes, e.target.parentNode)
+                        cardPos: Array.prototype.indexOf.call(cards1.childNodes, e.target.parentNode)
                     }
                     SendMessage("play_card", payload)
                 }
-                cardsElement.appendChild(cloneObj)
+                cards1.appendChild(cloneObj)
+            }
+            for (let i = 0; i < no2; i++) {
+                let card
+                let cardStr = MyPlayer.cards[i + no1].data
+                let cardColor = cardStr[0]
+                let cardType = cardStr[1]
+                let cardData = cardStr[2]
+
+                if (cardType == "num")
+                    card = cardObjs[cardType][cardColor][parseInt(cardData)]
+                else { // fun
+                    if (cardColor == "*") {
+                        if (cardData == "draw")
+                            card = cardObjs[cardType][cardColor][0]
+                        else if (cardData == "change")
+                            card = cardObjs[cardType][cardColor][1]
+                        else {
+                            console.log("updateUI can not detect this card");
+                            alert("updateUI() can not detect this type of card")
+                        }
+                    } else {
+                        if (cardData == "skip")
+                            card = cardObjs[cardType][cardColor][0]
+                        else if (cardData == "reverse")
+                            card = cardObjs[cardType][cardColor][1]
+                        else if (cardData == "draw")
+                            card = cardObjs[cardType][cardColor][2]
+                        else {
+                            console.log("updateUI can not detect this card");
+                            alert("updateUI() can not detect this type of card")
+                        }
+                    }
+                }
+                let cloneObj = card.cloneNode(true)
+                cloneObj.style.left = (cardPos2[i] * 100 / cardsElementWidth).toString() + "%"
+                cloneObj.onclick = function (e) {
+                    for (let i = 0; i < cards2.childElementCount; i++) {
+                        if (cards2.childNodes[i].firstChild.className.includes("active_card")) {
+                            cards2.childNodes[i].firstChild.className = removeAClassName(cards2.childNodes[i].firstChild.className, "active_card")
+                        }
+                    }
+
+                    e.target.className += " active_card"
+                }
+                cloneObj.ondblclick = function (e) {
+                    console.log("e.target.id" + e.target.id.toString());
+                    let data = e.target.id.replace("+", "*").split("-")
+                    if (!MyPlayer.checkNextCardIsValid(data)) {
+                        alert("you can not play this card")
+                        return
+                    }
+
+                    let payload = {
+                        id: MyPlayer.id,
+                        card: data,
+                        cardPos: Array.prototype.indexOf.call(cards2.childNodes, e.target.parentNode)
+                    }
+                    SendMessage("play_card", payload)
+                }
+                cards2.appendChild(cloneObj)
             }
 
 
@@ -532,10 +596,10 @@ function calculatePositionOfPlayers(noPlayers) {
 
 function calculateCardsPositions(noCards, width, cardSize) {
     let spaceBetween = 0
-    if (noCards <= 8) { }
-    else if (noCards <= 15) {
+    if (noCards <= 7) { }
+    else if (noCards <= 12) {
         spaceBetween = -cardSize * 0.4;
-    } else if (noCards <= 20) {
+    } else if (noCards <= 18) {
         spaceBetween = -cardSize * 0.6;
     } else {
         spaceBetween = -cardSize * 0.8;

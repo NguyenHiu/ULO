@@ -5,189 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <style>
-        html,
-        body {
-            height: 100%;
-            width: 100%;
-            margin: 0;
-            overflow: hidden;
-        }
-
-        * {
-            margin: 0;
-            font-family: monospace;
-        }
-
-        .center-text {
-            text-align: center;
-        }
-
-        #welcom {
-            position: absolute;
-            left: 50%;
-            transform: translate(-50%, 0);
-            display: inline-block;
-            font-size: large;
-            align-items: center;
-        }
-
-        #login-frame {
-            position: absolute;
-            left: 50%;
-            top: 30%;
-            transform: translate(-50%, 0);
-            padding: 5px 20px;
-        }
-
-        #data {
-            position: relative;
-            height: 100vh;
-        }
-
-        #top {
-            display: flex;
-            justify-content: space-evenly;
-            /* background-color: red; */
-            height: 10vw;
-            min-height: 10vw;
-            max-height: 10vw;
-            align-items: center;
-        }
-
-        #side {
-            display: flex;
-            flex-direction: row;
-            justify-content: space-between;
-            min-height: 50vh;
-            max-height: 50vh;
-            height: 50vh;
-        }
-
-        .side {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-evenly;
-            /* background-color: green; */
-        }
-
-        #player-cards {
-            /* background-color: blue; */
-            height: 40vh;
-        }
-
-        #cards {
-            position: relative;
-            display: flex;
-            flex-direction: row;
-            left: 50%;
-            transform: translate(-50%, 0);
-            /* height: 100%; */
-            width: 100%;
-        }
-
-        .card {
-            position: absolute;
-            /* background-color: purple; */
-            /* border: 2px solid black; */
-            /* height: 100%; */
-            width: 100%;
-        }
-
-        .active_card {
-            transform: translate(0%, -30%);
-        }
-
-        .card img {
-            width: 10vw;
-        }
-
-        .current_card {
-            position: absolute;
-            /* background-color: aqua; */
-            display: inline-block;
-            width: 5vw;
-            left: 45%;
-            top: 25%;
-            transform: translate(-50%, -50%);
-            transform: rotate(10deg);
-        }
-
-        #btn_draw {
-            position: absolute;
-            width: 10vw;
-            height: 10vh;
-            border-radius: 100px;
-            border: 2px solid black;
-            left: 80%;
-            top: 20%;
-            transform: translate(-50%, -50%);
-        }
-
-        .player {
-            /* display: inline-block; */
-            padding: 5px;
-            border: 2px solid black;
-            border-radius: 5px;
-            /* background-color: red; */
-        }
-
-        .player p {
-            text-align: center;
-        }
-
-        #choose-color {
-            position: absolute;
-            left: 50%;
-            top: 40%;
-            transform: translate(-50%, -50%);
-            /* background-color: aqua; */
-            display: flex;
-            flex-direction: row;
-            visibility: hidden;
-        }
-
-        #choose-color>div>div {
-            border: 1px solid black;
-            border-radius: 10px;
-            width: 10vw;
-            height: 10vh;
-            margin: 5px;
-        }
-
-        #cover {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
-            width: 100vw;
-            height: 100vh;
-            background-color: rgba(0, 0, 0, 0.5);
-            visibility: hidden;
-        }
-
-        #player-info {
-            /* background-color: red; */
-            position: absolute;
-            bottom: 0;
-
-        }
-
-        .current-player {
-            background-color: yellow;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body style="background-color: white;">
     <div id="login">
         <div id="welcome">
-            <h1 class="center-text" style="margin: 0px">ULO</h1>
+            <h1 class="center-text">ULO</h1>
             <p class="center-text">Welcome to ma gem</p>
             <p class="center-text">All the logic in this game is based on our house-rules!</p>
         </div>
         <div id="login-frame">
-            <h2 class="center-text">Login</h2>
+            <h2 class="center-text" style="margin-bottom: 20px">Login</h2>
             <div>
                 <label for="nameInput" style="display: block;">Username:</label>
                 <input id="nameInput" style="display: block; margin-top: 5px;">
@@ -208,8 +37,8 @@
         </div>
         <div id="draw_button"><button id="btn_draw">Draw</button></div>
         <div id="player-cards">
-            <div id="cards">
-            </div>
+            <div id="cards-1"> </div>
+            <div id="cards-2"> </div>
         </div>
 
         <div id="player-info"></div>
