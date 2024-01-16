@@ -137,6 +137,7 @@ window.onload = function () {
     let nameBTN = document.getElementById("nameButton");
     let curretnCardSlot = document.getElementById("current_card_slot")
     let drawBtn = document.getElementById("btn_draw")
+    let playBtn = document.getElementById("btn_play")
 
     let chooseColor_red = document.getElementById("choose-color-red")
     let chooseColor_green = document.getElementById("choose-color-green")
@@ -218,6 +219,48 @@ window.onload = function () {
                 name: MyPlayerName
             }
             SendMessage("request_data", payload)
+        }
+
+        playBtn.onclick = function (e) {
+            let payload = {
+                "id": MyPlayer.id,
+            }
+            let cards1 = document.getElementById("cards-1")
+            console.log("cards1.childElementCount");
+            console.log(cards1.childElementCount);
+            for (let i = 0; i < cards1.childElementCount; i++) {
+                console.log("i: " + i.toString());
+                console.log("cards1.childNodes[i]: ");
+                console.log(cards1.childNodes[i]);
+                if (cards1.childNodes[i].firstChild.className.includes("active_card")) {
+                    let data = cards1.childNodes[i].firstChild.id.replace("+", "*").split("-")
+                    if (!MyPlayer.checkNextCardIsValid(data)) {
+                        alert("you can not play this card")
+                        return
+                    }
+
+                    payload["card"] = data
+                    payload["cardPos"] = i
+                    SendMessage("play_card", payload)
+                    return
+                }
+            }
+            let cards2 = document.getElementById("cards-2")
+            for (let i = 0; i < cards2.childElementCount; i++) {
+                if (cards2.childNodes[i].firstChild.className.includes("active_card")) {
+                    let data = cards2.childNodes[i].firstChild.id.replace("+", "*").split("-")
+                    if (!MyPlayer.checkNextCardIsValid(data)) {
+                        alert("you can not play this card")
+                        return
+                    }
+
+                    payload["card"] = data
+                    payload["cardPos"] = i + cards1.childElementCount
+                    SendMessage("play_card", payload)
+                    return
+                }
+            }
+
         }
 
         chooseColor_red.onclick = function (e) {
