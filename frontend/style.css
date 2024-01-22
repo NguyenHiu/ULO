@@ -1,182 +1,96 @@
-html, body {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    overflow: hidden;
+body {
+    font-family: Georgia, serif;
+    /* overflow: hidden; */
 }
 
-* {
-    margin: 0;
-    font-family: monospace;
-}
+/* #m-left-col > .row, #m-right-col > .row, #m-top-row > .row {
+    background-color: green;
+} */
 
-.center-text {
-    text-align: center;
-}
-
-#welcome {
+.m-card-row {
     position: absolute;
-    left: 50%;
-    top: 20%;
-    transform: translate(-50%, -50%);
-}
-
-#login-frame {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    padding: 5px 20px;
-}
-
-#data {
-    position: relative;
-    height: 100vh;
-}
-
-#top {
-    display: flex;
-    justify-content: space-evenly;
-    /* background-color: red; */
-    height: 10vw;
-    min-height: 10vw;
-    max-height: 10vw;
-    align-items: center;
-}
-
-#side {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    min-height: 50vh;
-    max-height: 50vh;
-    height: 50vh;
-}
-
-.side {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-evenly;
-    /* background-color: green; */
-}
-
-
-.current_card {
-    position: absolute;
-    /* background-color: aqua; */
-    display: inline-block;
-    height: 10vh;
-    left: 45%;
-    top: 30%;
-    transform: translate(-50%, -50%);
-    /* transform: rotate(10deg); */
-}
-
-#btn_draw {
-    position: absolute;
-    border-radius: 100px;
-    border: 2px solid black;
-    left: 65%;
-    top: 15%;
-    transform: translate(-50%, -50%);
-    padding: 20px 30px;
-}
-
-#btn_play {
-    position: absolute;
-    border-radius: 100px;
-    border: 2px solid black;
-    left: 30%;
-    top: 15%;
-    transform: translate(-50%, -50%);
-    padding: 20px 30px;
-}
-
-#player-cards {
-    /* background-color: blue; */
-    display: flex;
-    flex-direction: column;
-    /* height: 40vh; */
-    position: relative;
-}
-
-#cards-1, #cards-2 {
-    position: relative;
-    display: flex;
-    flex-direction: row;
-    left: 50%;
-    top: 0;
-    transform: translate(-50%, 0);
-}
-
-#cards-2 {
-    top: 12vh;    
-}
-
-#player-info {
-    /* background-color: red; */
-    position: relative;
-    top: 25vh;
     left: 50%;
     transform: translate(-50%, 0%);
-    /* top: 100vh; */
-
 }
 
-.card {
-    position: absolute;
-}
-
-.active_card {
-    transform: translate(0%, -30%);
-}
-
-.card img {
-    height: 10vh;
-}
-
-.player {
-    /* display: inline-block; */
-    padding: 5px;
-    border: 2px solid black;
+.m-player-represent {
+    /* background-color: pink; */
+    margin: auto;
+    padding: 5px 10px;
     border-radius: 5px;
-    /* background-color: red; */
+    border: 2px solid black;
 }
 
-.player p {
-    text-align: center;
+.m-active-player {
+    background-color: lightyellow;
 }
 
-#choose-color {
+#m-curr-card-slot {
     position: absolute;
-    left: 50%;
+    left: 42%;
     top: 40%;
-    transform: translate(-50%, -50%);
-    /* background-color: aqua; */
-    display: flex;
-    flex-direction: row;
-    visibility: hidden;
+    transform: rotate(35deg);
 }
 
-#choose-color>div>div {
-    border: 1px solid black;
-    border-radius: 10px;
-    width: 10vw;
-    height: 10vh;
-    margin: 5px;
+.m-curr-card {
+    width: 30%;
 }
 
-#cover {
+#m-drawed-card-slot {
     position: absolute;
     left: 50%;
-    top: 50%;
+    top: 45%;
     transform: translate(-50%, -50%);
-    width: 100vw;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.5);
-    visibility: hidden;
+    z-index: 100;   
 }
 
-.current-player {
-    background-color: yellow;
+.m-drawed-card {
+    width: 50%;
+}
+
+#m-button-draw {
+    padding: 10px 20px;
+    border-radius: 15px;
+    position: absolute;
+    top: 30%;
+    left: 70%;
+    transform: translate(-50%, -50%);
+}
+
+#m-button-play {
+    padding: 10px 20px;
+    border-radius: 15px;
+    position: absolute;
+    top: 50%;
+    left: 70%;
+    transform: translate(-50%, -50%);
+}
+
+#m-button-drawed-play {
+    z-index: 100;
+    padding: 20px 40px;
+    border-radius: 15px;
+    position: absolute;
+    top: 30%;
+    left: 62%;
+    transform: translate(-50%, -50%);
+}
+
+#m-button-drawed-skip {
+    z-index: 100;
+    padding: 20px 40px;
+    border-radius: 15px;
+    position: absolute;
+    top: 60%;
+    left: 62%;
+    transform: translate(-50%, -50%);
+}
+
+#m-button-call-uno {
+    padding: 10px 20px;
+    border-radius: 15px;
+    position: absolute;
+    top: 50%;
+    left: 30%;
+    transform: translate(-50%, -50%);
 }

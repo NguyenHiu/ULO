@@ -4,125 +4,263 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>~ULO~</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
     <link rel="stylesheet" href="style.css">
 </head>
 
-<body style="background-color: white;">
-    <div id="login">
-        <div id="welcome">
-            <h1 class="center-text">ULO</h1>
-            <p class="center-text">Welcome to ma gem</p>
-            <p class="center-text">All the logic in this game is based on our house-rules!</p>
+<body>
+    <!-- templates -->
+    <div id="tpl" hidden>
+        <!-- row template -->
+        <div class="row">
+            <div class="col m-left-column"></div>
+            <div class="col-7"></div>
+            <div class="col m-right-column"></div>
         </div>
-        <div id="login-frame">
-            <h2 class="center-text" style="margin-bottom: 20px">Login</h2>
-            <div>
-                <label for="nameInput" style="display: block;">Username:</label>
-                <input id="nameInput" style="display: block; margin-top: 5px;">
-                <div style="margin-top: 10px;" class="center-text">
-                    <button id="nameButton" style="padding: 5px 30px;">Login</button>
+
+        <!-- player's card templte -->
+        <div style="width: 5%">
+            <img src="" style="width: 100%;">
+        </div>
+
+        <!-- player representation -->
+        <div class="row" style="margin: auto;">
+            <p class="m-player-represent"></p>
+        </div>
+    </div>
+
+    <!-- players -->
+    <div style="height: 70vh; background-color: lightblue; position: relative;">
+        <div class="container-fluid text-center h-100 d-flex flex-column">
+
+            <!-- top  -->
+            <div class="row" style="margin-top: 5px;">
+                <div class="col"></div>
+                <div class="col-10">
+                    <div class="col d-flex flex-row justify-content-around" id="m-top-row">
+                        <div class="row">
+                            <p class="m-player-represent">Hiu, 12</p>
+                        </div>
+                        <div class="row">
+                            <p class="m-player-represent">Hiu, 12</p>
+                        </div>
+                        <div class="row">
+                            <p class="m-player-represent">Hiu, 12</p>
+                        </div>
+                        <div class="row">
+                            <p class="m-player-represent">Hiu, 12</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col"></div>
+            </div>
+
+            <!--  side  -->
+            <div class="row flex-grow-1">
+
+                <!-- left -->
+                <div class="col h-100 d-flex flex-column justify-content-around" id="m-left-col">
+                    <div class="row" style="margin: auto;">
+                        <p class="m-player-represent">Firefox, 12</p>
+                    </div>
+                    <div class="row" style="margin: auto;">
+                        <p class="m-player-represent">Firefox, 12</p>
+                    </div>
+                    <div class="row" style="margin: auto;">
+                        <p class="m-player-represent">Firefox, 12</p>
+                    </div>
+                </div>
+
+                <!-- center -->
+                <div class="col-7"></div>
+
+                <!-- right -->
+                <div class="col h-100 d-flex flex-column justify-content-around" id="m-right-col">
+                    <div class="row" style="margin:auto">
+                        <p class="m-player-represent">Firefox, 12</p>
+                    </div>
+                    <div class="row" style="margin:auto">
+                        <p class="m-player-represent">Firefox, 12</p>
+                    </div>
+                    <div class="row" style="margin:auto">
+                        <p class="m-player-represent">Firefox, 12</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" style="position: absolute; bottom: 0%; left: 50%; transform: translate(-50%, 0%);">
+                <p class="m-player-represent" id="m-curr-player"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- context -->
+    <div style="position: absolute; left: 0; top: 0; height: 100vh; width: 100vw">
+        <div id="m-curr-card-slot">
+            <img src="./cards/blue-num-0.png" class="m-curr-card">
+        </div>
+
+        <button id="m-button-draw">Draw</button>
+        <button id="m-button-play"> Play </button>
+        <button id="m-button-call-uno">UNO! </button>
+
+        <div id="m-drawed-card-switch" hidden>
+            <div id="cover"
+                style="position: absolute; left: 0; top: 0; height: 100vh; width: 100vw; background-color: rgba(0,0,0,0.6); z-index: 99;">
+            </div>
+            <div id="m-drawed-card-slot">
+                <img src="./cards/+-fun-change.png" class="m-drawed-card">
+            </div>
+
+            <button id="m-button-drawed-play">Play</button>
+            <button id="m-button-drawed-skip">Skip</button>
+        </div>
+
+    </div>
+
+    <!-- sets of cards -->
+    <div style="height: 30vh; margin: 5px 20px 0px; position: relative;">
+        <div class="container w-100 h-100" style="position: relative;">
+            <div class="row gx-0 gy-0 w-100 m-card-row" style="top: 0;">
+                <!-- the upper set of card -->
+                <div class="col d-flex flex-row justify-content-around" style="width: 5%;" id="m-upper-set-of-cards">
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                </div>
+            </div>
+            <div class="row gx-0 gy-0 w-100 m-card-row" style="top: 35%;">
+                <!-- the below set of cards -->
+                <div class="col d-flex flex-row justify-content-around" style="width: 5%;" id="m-below-set-of-cards">
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
+                    <div style="width: 5%">
+                        <img src="./cards/blue-num-0.png" style="width: 100%;">
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="data" hidden>
-        <div id="top"> </div>
-        <div id="side">
-            <div id="left" class="side"> </div>
-            <div id="right" class="side"> </div>
-        </div>
-        <div id="current_card_slot">
-        </div>
-        <div id="play_button"><button id="btn_play">Play</button></div>
-        <div id="draw_button"><button id="btn_draw">Draw</button></div>
-        <div id="player-cards">
-            <div id="cards-1"> </div>
-            <div id="cards-2"> </div>
-            <div id="player-info"></div>
-        </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+        crossorigin="anonymous"></script>
 
-        <div id="cover"></div>
-        <div id="choose-color">
-            <div>
-                <div id="choose-color-red" style="background-color: red;"></div>
-                <div id="choose-color-green" style="background-color: green;"></div>
-            </div>
-            <div>
-                <div id="choose-color-blue" style="background-color: blue;"></div>
-                <div id="choose-color-yellow" style="background-color: yellow;"></div>
-            </div>
-        </div>
-    </div>
-
-
-    <div hidden id="images">
-        <img src="./cards/blue-num-0.png" id="blue-num-0">
-        <img src="./cards/blue-num-1.png" id="blue-num-1">
-        <img src="./cards/blue-num-2.png" id="blue-num-2">
-        <img src="./cards/blue-num-3.png" id="blue-num-3">
-        <img src="./cards/blue-num-4.png" id="blue-num-4">
-        <img src="./cards/blue-num-5.png" id="blue-num-5">
-        <img src="./cards/blue-num-6.png" id="blue-num-6">
-        <img src="./cards/blue-num-7.png" id="blue-num-7">
-        <img src="./cards/blue-num-8.png" id="blue-num-8">
-        <img src="./cards/blue-num-9.png" id="blue-num-9">
-        <img src="./cards/blue-fun-draw-2.png" id="blue-fun-draw-2">
-        <img src="./cards/blue-fun-reverse.png" id="blue-fun-reverse">
-        <img src="./cards/blue-fun-skip.png" id="blue-fun-skip">
-
-        <img src="./cards/red-num-0.png" id="red-num-0">
-        <img src="./cards/red-num-1.png" id="red-num-1">
-        <img src="./cards/red-num-2.png" id="red-num-2">
-        <img src="./cards/red-num-3.png" id="red-num-3">
-        <img src="./cards/red-num-4.png" id="red-num-4">
-        <img src="./cards/red-num-5.png" id="red-num-5">
-        <img src="./cards/red-num-6.png" id="red-num-6">
-        <img src="./cards/red-num-7.png" id="red-num-7">
-        <img src="./cards/red-num-8.png" id="red-num-8">
-        <img src="./cards/red-num-9.png" id="red-num-9">
-        <img src="./cards/red-fun-draw-2.png" id="red-fun-draw-2">
-        <img src="./cards/red-fun-reverse.png" id="red-fun-reverse">
-        <img src="./cards/red-fun-skip.png" id="red-fun-skip">
-
-        <img src="./cards/green-num-0.png" id="green-num-0">
-        <img src="./cards/green-num-1.png" id="green-num-1">
-        <img src="./cards/green-num-2.png" id="green-num-2">
-        <img src="./cards/green-num-3.png" id="green-num-3">
-        <img src="./cards/green-num-4.png" id="green-num-4">
-        <img src="./cards/green-num-5.png" id="green-num-5">
-        <img src="./cards/green-num-6.png" id="green-num-6">
-        <img src="./cards/green-num-7.png" id="green-num-7">
-        <img src="./cards/green-num-8.png" id="green-num-8">
-        <img src="./cards/green-num-9.png" id="green-num-9">
-        <img src="./cards/green-fun-draw-2.png" id="green-fun-draw-2">
-        <img src="./cards/green-fun-reverse.png" id="green-fun-reverse">
-        <img src="./cards/green-fun-skip.png" id="green-fun-skip">
-
-        <img src="./cards/yellow-num-0.png" id="yellow-num-0">
-        <img src="./cards/yellow-num-1.png" id="yellow-num-1">
-        <img src="./cards/yellow-num-2.png" id="yellow-num-2">
-        <img src="./cards/yellow-num-3.png" id="yellow-num-3">
-        <img src="./cards/yellow-num-4.png" id="yellow-num-4">
-        <img src="./cards/yellow-num-5.png" id="yellow-num-5">
-        <img src="./cards/yellow-num-6.png" id="yellow-num-6">
-        <img src="./cards/yellow-num-7.png" id="yellow-num-7">
-        <img src="./cards/yellow-num-8.png" id="yellow-num-8">
-        <img src="./cards/yellow-num-9.png" id="yellow-num-9">
-        <img src="./cards/yellow-fun-draw-2.png" id="yellow-fun-draw-2">
-        <img src="./cards/yellow-fun-reverse.png" id="yellow-fun-reverse">
-        <img src="./cards/yellow-fun-skip.png" id="yellow-fun-skip">
-
-        <img src="./cards/+-fun-change.png" id="+-fun-change">
-        <img src="./cards/+-fun-draw-4.png" id="+-fun-draw-4">
-
-    </div>
-    <!-- <script src="src/const.js" type="module"></script>
-    <script src="src/context.js" type="module"></script>
-    <script src="src/player.js" type="module"></script> -->
-    <script src="src/app.js" type="module"></script>
 </body>
 
 </html>
