@@ -18,17 +18,19 @@ body {
     margin: auto;
     padding: 5px 10px;
     border-radius: 5px;
-    border: 2px solid black;
+    /* border: 2px solid black; */
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .m-active-player {
-    background-color: lightyellow;
+    background-color: rgb(244, 244, 150);
+    box-shadow: 0 0 12px rgb(202, 202, 55);;
 }
 
 #m-curr-card-slot {
     position: absolute;
     left: 42%;
-    top: 40%;
+    top: 35%;
     transform: rotate(35deg);
 }
 
