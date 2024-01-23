@@ -99,3 +99,10 @@ cardObjs[C.FUN]["*"].push(fundraw4)
 let funchange = d.cloneNode()
 funchange.appendChild(document.getElementById("+-fun-change").cloneNode())
 cardObjs[C.FUN]["*"].push(funchange)
+
+export const OBJ = {
+    LoginInput: document.getElementById("m-login-name-input"),
+    LoginButton: document.getElementById("m-login-submit-button"),
+    LoginPage: document.getElementById("m-login-page"),
+    GameBoard: document.getElementById("m-game-board")
+}

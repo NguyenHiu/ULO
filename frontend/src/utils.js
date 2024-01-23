@@ -6,7 +6,7 @@ export function updateUI(CurrentPlayer, MyPlayerName, currentCardSlot) {
     let names = [];
     let noCards = [];
 
-    // sort players
+    // sort player list
     let pos = -1
     for (let i = 0; i < n; i++) {
         if (CurrentPlayer.ctx.playernames[i] == MyPlayerName) {
@@ -182,4 +182,9 @@ function calculateCardsPositions(noCards, width, cardSize) {
         res.push(start + i * (cardSize + spaceBetween))
     }
     return res
+}
+
+export function chooseColorTrigger() {
+    document.getElementById("cover").style.visibility = "visible"
+    document.getElementById("choose-color").style.visibility = "visible"
 }

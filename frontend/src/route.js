@@ -21,8 +21,8 @@ export function routeEvent(event, CurrentPlayer, PlayerName, currentCardSlot) {
             CurrentPlayer.id = event.payload.id
             // cards
             for (let i = 0; i < event.payload.cards.length; i++) {
-                console.log("event.payload.cards[i]:");
-                console.log(event.payload.cards[i]);
+                // console.log("event.payload.cards[i]:");
+                // console.log(event.payload.cards[i]);
                 CurrentPlayer.cards[i] = new Card(event.payload.cards[i].data)
             }
             // ctx
@@ -43,7 +43,7 @@ export function routeEvent(event, CurrentPlayer, PlayerName, currentCardSlot) {
             break;
 
         case "choose_color":
-            CurrentPlayer.chooseColorTrigger()
+            chooseColorTrigger()
             break;
 
         case "end_game":

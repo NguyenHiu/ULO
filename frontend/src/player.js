@@ -13,14 +13,9 @@ export class Player {
 
     // data: string array
     checkNextCardIsValid(data) {
-        console.log("this ctx");
-        console.log(this.ctx);
+        // console.log("this ctx");
+        // console.log(this.ctx);
         return this.ctx.checkNextCardIsValid(data)
-    }
-
-    chooseColorTrigger() {
-        document.getElementById("cover").style.visibility = "visible"
-        document.getElementById("choose-color").style.visibility = "visible"
     }
 
     addNewCards(cards) {
