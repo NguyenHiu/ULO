@@ -297,7 +297,7 @@
     </div>
 
     <!-- choose color -->
-    <div id="m-choose-color">
+    <div id="m-choose-color" hidden>
         <!-- cover -->
         <div
             style="position: absolute; left: 0%; top: 0%; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.7);">
@@ -313,23 +313,27 @@
                                 Which color do u want?
                             </p>
                         </div>
-                        <div class="row ">
-                            <div class="col">
-                                <div style="display: inline-block">
-                                    <div
-                                        style=" background-color: red; margin: 5px; height: 100px; width: 100px; border-top-left-radius: 20px;">
-                                    </div>
-                                    <div
-                                        style="background-color: green;margin: 5px; height: 100px;width: 100px;border-bottom-left-radius: 20px;">
-                                    </div>
+                        <div class="row gx-0">
+                            <div class="col d-flex flex-row justify-content-end">
+                                <div id="m-cc-red"
+                                    style="background-color: red; margin: 5px; height: 100px; width: 100px; border-top-left-radius: 20px;">
                                 </div>
-                                <div style="display: inline-block;">
-                                    <div
-                                        style="background-color: blue;margin: 5px; height: 100px;width: 100px;border-top-right-radius: 20px;">
-                                    </div>
-                                    <div
-                                        style="background-color: yellow;margin: 5px; height: 100px;width: 100px;border-bottom-right-radius: 20px;">
-                                    </div>
+                            </div>
+                            <div class="col d-flex flex-row justify-content-start">
+                                <div id="m-cc-green"
+                                    style="background-color: green; margin: 5px; height: 100px; width: 100px; border-top-right-radius: 20px;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row gx-0">
+                            <div class="col d-flex flex-row justify-content-end">
+                                <div id="m-cc-blue"
+                                    style="background-color: blue; margin: 5px; height: 100px; width: 100px; border-bottom-left-radius: 20px;">
+                                </div>
+                            </div>
+                            <div class="col d-flex flex-row justify-content-start">
+                                <div id="m-cc-yellow"
+                                    style="background-color: yellow; margin: 5px; height: 100px; width: 100px; border-bottom-right-radius: 20px;">
                                 </div>
                             </div>
                         </div>
