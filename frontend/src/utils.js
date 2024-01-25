@@ -1,190 +1,106 @@
-import { createPlayerObject } from './player.js'
-import { GetCard } from './const.js';
+import { Cards, NewCardRepresentation, NewPlayerRow, Obj } from './constants.js';
 
-export function updateUI(CurrentPlayer, MyPlayerName, currentCardSlot) {
-    let n = CurrentPlayer.ctx.noplayer;
-    let names = [];
-    let noCards = [];
-
+export function updateUI(PlayerData) {
     // sort player list
     let pos = -1
-    for (let i = 0; i < n; i++) {
-        if (CurrentPlayer.ctx.playernames[i] == MyPlayerName) {
+    for (let i = 0; i < PlayerData.Data.ctx.noplayer; i++) {
+        if (PlayerData.Data.ctx.playernames[i] == PlayerData.Name) {
             pos = i
         }
     }
+
     if (pos != -1) {
         let _count = 0;
-        while (names.length < n) {
-            if (_count > n) {
-                alert("while loop in updateUI() is an infinite loop")
+        let names = [];
+        let noCards = [];
+        while (names.length < PlayerData.Data.ctx.noplayer) {
+            if (_count > PlayerData.Data.ctx.noplayer) {
+                console.log("While loop in updateUI() is an infinite loop!")
+                return
             }
             _count++;
 
-            names.push(CurrentPlayer.ctx.playernames[pos])
-            noCards.push(CurrentPlayer.ctx.playernocards[pos])
-            pos = (pos + 1) % n
+            names.push(PlayerData.Data.ctx.playernames[pos])
+            noCards.push(PlayerData.Data.ctx.playernocards[pos])
+            pos = (pos + 1) % PlayerData.Data.ctx.noplayer
         }
 
-        let positions = calculatePositionOfPlayers(n)
-
-        let left = document.getElementById("left")
-        let right = document.getElementById("right")
-        let top = document.getElementById("top")
-
+        Obj.RightSideBoard.innerHTML = ''
+        Obj.LeftSideBoard.innerHTML = ''
+        Obj.TopSideBoard.innerHTML = ''
+        let positions = SetupPlayerPosition(PlayerData.Data.ctx.noplayer)
         let i = 1
-        right.innerHTML = ''
         for (let j = positions.side - 1; j >= 0; j--) {
-            let obj = createPlayerObject(names[i + j], noCards[i + j])
-            if (names[i + j] == CurrentPlayer.ctx.currentPlayerName)
-                obj.className += " current-player"
-            right.appendChild(obj)
+            right.appendChild(NewPlayerRow(names[i + j], noCards[i + j], PlayerData.Data.ctx.currentPlayerName))
         }
         i += positions.side
 
-        top.innerHTML = ''
         for (let j = positions.top - 1; j >= 0; j--) {
-            let obj = createPlayerObject(names[i + j], noCards[i + j])
-            if (names[i + j] == CurrentPlayer.ctx.currentPlayerName)
-                obj.className += " current-player"
-            top.appendChild(obj)
+            top.appendChild(NewPlayerRow(names[i + j], noCards[i + j], PlayerData.Data.ctx.currentPlayerName))
         }
         i += positions.top
 
-        left.innerHTML = ''
         for (let j = 0; j < positions.side; j++) {
-            let obj = createPlayerObject(names[i + j], noCards[i + j])
-            if (names[i + j] == CurrentPlayer.ctx.currentPlayerName)
-                obj.className += " current-player"
-            left.appendChild(obj)
+            left.appendChild(NewPlayerRow(names[i + j], noCards[i + j], PlayerData.Data.ctx.currentPlayerName))
         }
     } else {
-        console.log("context: ");
+        console.log("updateUI(): can not found player name, context: ")
         console.log(CurrentPlayer.ctx);
     }
 
     // this player 
-    {
-        let playerInfo = document.getElementById("player-info")
-        let obj = createPlayerObject(MyPlayerName, CurrentPlayer.cards.length)
-        if (MyPlayerName == CurrentPlayer.ctx.currentPlayerName)
-            obj.className += " current-player"
-        obj.style.margin = "5px"
-        playerInfo.innerHTML = ''
-        playerInfo.appendChild(obj)
-    }
+    Obj.CurrentPlayerSlot.innerHTML = ''
+    Obj.CurrentPlayerSlot.appendChild(NewPlayerRow(PlayerData.Name, PlayerData.Data.cards.length, PlayerData.Data.ctx.currentPlayerName))
 
     // update player's cards
-    let RemoveTheActiveCard = function (cardsRow1, cardsRow2) {
-        for (let i = 0; i < cardsRow1.childNodes.length; i++) {
-            if (cardsRow1.childNodes[i].firstChild.className.includes("active_card")) {
-                cardsRow1.childNodes[i].firstChild.className = removeAClassName(cardsRow1.childNodes[i].firstChild.className, "active_card")
-            }
+    Obj.UpperCardSet.innerHTML = ''
+    Obj.BelowCardSet.innerHTML = ''
+    if (PlayerData.Data.cards.length <= 10) {
+        for (let i = 0; i < PlayerData.Data.cards.length; i++) {
+            let tmp = NewCardRepresentation(PlayerData.Data.cards[i].id)
+            tmp.onclick = CardOnclick
+            Obj.UpperCardSet.appendChild(tmp)
         }
-        for (let i = 0; i < cardsRow2.childNodes.length; i++) {
-            if (cardsRow2.childNodes[i].firstChild.className.includes("active_card")) {
-                cardsRow2.childNodes[i].firstChild.className = removeAClassName(cardsRow2.childNodes[i].firstChild.className, "active_card")
-            }
+    } else {
+        let amountUpper = parseInt(PlayerData.Data.cards.length / 2)
+        let i = 0;
+        for (; i < amountUpper; i++) {
+            let tmp = NewCardRepresentation(PlayerData.Data.cards[i].id)
+            tmp.onclick = CardOnclick
+            Obj.UpperCardSet.appendChild(tmp)
         }
-    }
-
-    let CalculateCardPositionsInARow = function (noCards, cards, offset, parentObj, otherRow, cardsPos) {
-        for (let i = 0; i < noCards; i++) {
-            let card = GetCard(cards[i + offset].data)
-            let cloneObj = card.cloneNode(true)
-            cloneObj.style.left = (cardsPos[i] * 100 / cardsElementWidth).toString() + "%"
-            cloneObj.onclick = function (e) {
-                if (e.target.className.includes("active_card")) {
-                    e.target.className = removeAClassName(e.target.className, "active_card")
-                } else {
-                    RemoveTheActiveCard(parentObj, otherRow)
-                    e.target.className += " active_card"
-                }
-
-            }
-            parentObj.appendChild(cloneObj)
+        for (; i < PlayerData.Data.cards.length; i++) {
+            let tmp = NewCardRepresentation(PlayerData.Data.cards[i].id)
+            tmp.onclick = CardOnclick
+            Obj.BelowCardSet.appendChild(tmp)
         }
     }
-
-    let cards1 = document.getElementById("cards-1")
-    let cards2 = document.getElementById("cards-2")
-    let no1 = parseInt(CurrentPlayer.cards.length / 2)
-    let no2 = CurrentPlayer.cards.length - no1
-    let cardWidth = 2 * document.documentElement.clientHeight / 30
-    let cardsElementWidth = cards1.offsetWidth
-    let cardPos1 = calculateCardsPositions(no1, cardsElementWidth, cardWidth)
-    let cardPos2 = calculateCardsPositions(no2, cardsElementWidth, cardWidth)
-    cards1.innerHTML = ''
-    cards2.innerHTML = ''
-    CalculateCardPositionsInARow(no1, CurrentPlayer.cards, 0, cards1, cards2, cardPos1)
-    CalculateCardPositionsInARow(no2, CurrentPlayer.cards, no1, cards2, cards1, cardPos2)
 
     // update current card
-    if (CurrentPlayer.ctx.currData.length != 1) {
-        let card = GetCard(CurrentPlayer.ctx.currData)
-        let cloneObj = card.firstChild.cloneNode(true)
-        cloneObj.className += " current_card"
-        currentCardSlot.innerHTML = ''
-        currentCardSlot.appendChild(cloneObj)
+    if (PlayerData.Data.ctx.currData != "*") {
+        let tmp = Cards[PlayerData.Data.ctx.currData].cloneNode(true)
+        tmp.className += " m-curr-card"
+        Obj.CurrentCardSlot.innerHTML = ''
+        Obj.CurrentCardSlot.appendChild(tmp)
     }
 }
 
-function removeAClassName(className, needtoberemoved) {
-    let str = className.split(" ")
-    if (str.length != 0) {
-        let newClassName = ""
-        for (let i = 0; i < str.length; i++) {
-            if (str[i] != needtoberemoved)
-                newClassName += str[i] + " "
-        }
-        return newClassName
-    }
-    return className
+function SetupPlayerPosition(noPlayers) {
+    let n = (noPlayers - 1) / 3
+    let r = n - parseInt(n)
+    if (r == 0) return { top: n, side: n }
+    else if (r < 0.5) return { top: n + 1, side: n }
+    else return { top: n, side: n + 1 }
 }
 
-function calculatePositionOfPlayers(noPlayers) {
-    switch (noPlayers) {
-        case 1:
-            return { "top": 0, "side": 0 }
-        case 2:
-            return { "top": 1, "side": 0 }
-        case 3:
-            return { "top": 0, "side": 1 }
-        default:
-            let eachSide = parseInt((noPlayers - 1) / 3)
-            let leftPlayers = (noPlayers - 1) - 3 * eachSide
-            let bs = 0, bt = 0
-            if (leftPlayers == 1)
-                bt = 1
-            else if (leftPlayers == 2)
-                bs = 1
-            return {
-                "top": eachSide + bt,
-                "side": eachSide + bs,
-            }
-    }
+export function ChooseColorTrigger() {
+    Obj.ChooseColorLayout.hidden = false
 }
 
-function calculateCardsPositions(noCards, width, cardSize) {
-    let spaceBetween = 0
-    if (noCards <= 7) { }
-    else if (noCards <= 12) {
-        spaceBetween = -cardSize * 0.4;
-    } else if (noCards <= 18) {
-        spaceBetween = -cardSize * 0.6;
-    } else {
-        spaceBetween = -cardSize * 0.8;
-    }
-    let cardsWidth = noCards * cardSize + (noCards - 1) * spaceBetween
-    let start = width / 2 - cardsWidth / 2
-    let res = []
-    for (let i = 0; i < noCards; i++) {
-        res.push(start + i * (cardSize + spaceBetween))
-    }
-    return res
-}
-
-export function chooseColorTrigger() {
-    document.getElementById("cover").style.visibility = "visible"
-    document.getElementById("choose-color").style.visibility = "visible"
+let CardOnclick = function (e) {
+    let activeCard = document.getElementsByClassName("m-active-card")[0]
+    console.log("active card: ");
+    console.log(activeCard);
+    if (activeCard != null) activeCard.className = activeCard.className.replace("m-active-card", "")
+    e.target.className += "m-active-card"
 }

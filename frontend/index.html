@@ -13,7 +13,7 @@
 
 <body>
     <!-- login page -->
-    <div id="m-login-page" hidden>
+    <div id="m-login-page">
         <div class="container text-center" style="position: absolute; top: 25%; transform: translate(0%, -50%);">
             <div class="col">
                 <h1>~ULO~</h1>
@@ -44,7 +44,7 @@
     </div>
 
     <!-- game board -->
-    <div id="m-game-board">
+    <div id="m-game-board" hidden>
         <!-- players -->
         <div style="height: 70vh; position: relative;">
             <div class="container-fluid text-center h-100 d-flex flex-column">
@@ -54,18 +54,7 @@
                     <div class="col"></div>
                     <div class="col-10">
                         <div class="col d-flex flex-row justify-content-around" id="m-top-row">
-                            <div class="row">
-                                <p class="m-player-represent">Hiu, 12</p>
-                            </div>
-                            <div class="row">
-                                <p class="m-player-represent">Hiu, 12</p>
-                            </div>
-                            <div class="row">
-                                <p class="m-player-represent">Hiu, 12</p>
-                            </div>
-                            <div class="row">
-                                <p class="m-player-represent">Hiu, 12</p>
-                            </div>
+
                         </div>
                     </div>
                     <div class="col"></div>
@@ -76,15 +65,7 @@
 
                     <!-- left -->
                     <div class="col h-100 d-flex flex-column justify-content-around" id="m-left-col">
-                        <div class="row" style="margin: auto;">
-                            <p class="m-player-represent">Firefox, 12</p>
-                        </div>
-                        <div class="row" style="margin: auto;">
-                            <p class="m-player-represent">Firefox, 12</p>
-                        </div>
-                        <div class="row" style="margin: auto;">
-                            <p class="m-player-represent">Firefox, 12</p>
-                        </div>
+
                     </div>
 
                     <!-- center -->
@@ -92,23 +73,13 @@
 
                     <!-- right -->
                     <div class="col h-100 d-flex flex-column justify-content-around" id="m-right-col">
-                        <div class="row m-active-player" style="margin:auto">
-                            <p class="m-player-represent">Firefox, 12</p>
-                        </div>
-                        <div class="row" style="margin:auto">
-                            <p class="m-player-represent">Firefox, 12</p>
-                        </div>
-                        <div class="row" style="margin:auto">
-                            <p class="m-player-represent">Firefox, 12</p>
-                        </div>
+
                     </div>
                 </div>
 
                 <div id="m-curr-player-slot">
                     <div class="row">
-                        <p class="m-player-represent">
-                            Firefox, 1223
-                        </p>
+
                     </div>
                 </div>
             </div>
@@ -117,7 +88,7 @@
         <!-- context -->
         <div style="position: absolute; left: 0; top: 0; height: 100vh; width: 100vw">
             <div id="m-curr-card-slot">
-                <img src="./cards/blue-num-0.png" class="m-curr-card">
+                <img src="./cards/+-+.png" class="m-curr-card">
             </div>
 
             <button id="m-button-draw">Draw</button>
@@ -129,7 +100,6 @@
                     style="position: absolute; left: 0; top: 0; height: 100vh; width: 100vw; background-color: rgba(0,0,0,0.6); z-index: 99;">
                 </div>
                 <div id="m-drawed-card-slot">
-                    <img src="./cards/+-fun-change.png" class="m-drawed-card">
                 </div>
 
                 <button id="m-button-drawed-play">Play</button>
@@ -145,132 +115,14 @@
                     <!-- the upper set of card -->
                     <div class="col d-flex flex-row justify-content-around" style="width: 5%;"
                         id="m-upper-set-of-cards">
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
+
                     </div>
                 </div>
                 <div class="row gx-0 gy-0 w-100 m-card-row" style="top: 35%;">
                     <!-- the below set of cards -->
                     <div class="col d-flex flex-row justify-content-around" style="width: 5%;"
                         id="m-below-set-of-cards">
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
-                        <div style="width: 5%">
-                            <img src="./cards/blue-num-0.png" style="width: 100%;">
-                        </div>
+
                     </div>
                 </div>
             </div>
@@ -278,7 +130,7 @@
     </div>
 
     <!-- choose color -->
-    <div id="m-choose-color" style="visibility: hidden;">
+    <div id="m-choose-color" hidden>
         <!-- cover -->
         <div
             style="position: absolute; left: 0%; top: 0%; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.7);">
@@ -341,6 +193,7 @@
 
         <!-- cards -->
         <div>
+            <img src="./cards/+-+.png" id="+-+">
             <img src="./cards/red-+.png" id="red-+">
             <img src="./cards/green-+.png" id="green-+">
             <img src="./cards/blue-+.png" id="blue-+">

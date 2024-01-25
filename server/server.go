@@ -26,7 +26,7 @@ const (
 )
 
 type Context struct {
-	CurrData          []string `json:"currData"`
+	CurrData          string   `json:"currData"`
 	Stack2            int      `json:"stack2"`
 	Stack4            int      `json:"stack4"`
 	AllowStack2       bool     `json:"allowStack2"`
@@ -40,19 +40,16 @@ type Context struct {
 
 type Server struct {
 	cards        []Card
-	currCardData []string
+	currCardData string
 	direction    int
 	pos          int
 	nextID       int
 	draw2Stack   int
 	draw4Stack   int
 
-	IsPlaying    bool
-	IsFreezing   bool
-	FreezeReason string
+	IsPlaying bool
 
 	sortedPlayers []*Player
-	// storage       map[string][]Card
 
 	handlers map[string]EventHandler
 	sync.RWMutex
@@ -63,35 +60,32 @@ func InitAGame() *Server {
 	var cards []Card
 	for i := 0; i < 4; i++ {
 		for j := 1; j <= 9; j++ {
-			cards = append(cards, Card{Data: fmt.Sprintf("%v:num:%v", color[i], j)})
-			cards = append(cards, Card{Data: fmt.Sprintf("%v:num:%v", color[i], j)})
+			cards = append(cards, Card{Data: fmt.Sprintf("%v-num-%v", color[i], j)})
+			cards = append(cards, Card{Data: fmt.Sprintf("%v-num-%v", color[i], j)})
 		}
 	}
 	for i := 0; i < 4; i++ {
-		cards = append(cards, Card{Data: fmt.Sprintf("%v:num:0", color[i])})
+		cards = append(cards, Card{Data: fmt.Sprintf("%v-num-0", color[i])})
 		for j := 0; j < 2; j++ {
-			cards = append(cards, Card{Data: fmt.Sprintf("%v:fun:skip", color[i])})
-			cards = append(cards, Card{Data: fmt.Sprintf("%v:fun:reverse", color[i])})
-			cards = append(cards, Card{Data: fmt.Sprintf("%v:fun:draw:2", color[i])})
+			cards = append(cards, Card{Data: fmt.Sprintf("%v-fun-skip", color[i])})
+			cards = append(cards, Card{Data: fmt.Sprintf("%v-fun-reverse", color[i])})
+			cards = append(cards, Card{Data: fmt.Sprintf("%v-fun-draw-2", color[i])})
 		}
-		cards = append(cards, Card{Data: "*:fun:change"})
-		cards = append(cards, Card{Data: "*:fun:draw:4"})
+		cards = append(cards, Card{Data: "+-fun-change"})
+		cards = append(cards, Card{Data: "+-fun-draw-4"})
 	}
 
 	s := &Server{
-		cards:        cards,
-		direction:    1,
-		nextID:       0,
-		pos:          0,
-		currCardData: []string{"*"},
-		handlers:     make(map[string]EventHandler),
-		// storage:       make(map[string][]Card),
+		cards:         cards,
+		direction:     1,
+		nextID:        0,
+		pos:           0,
+		currCardData:  "+-+",
+		handlers:      make(map[string]EventHandler),
 		sortedPlayers: []*Player{},
 		IsPlaying:     false,
 	}
-
 	s.setupEventHandlers()
-
 	return s
 }
 
@@ -106,6 +100,7 @@ func (s *Server) setupEventHandlers() {
 	s.handlers[EventRequestData] = RequestData
 	s.handlers[EventChooseColorResponse] = ChooseColorResponse
 	s.handlers[EventCloseConnect] = CloseConnectReload
+	s.handlers[EventNextPlayer] = NextPlayer
 }
 
 func (s *Server) getContext() *Context {
@@ -140,7 +135,7 @@ func (s *Server) routeEvent(event Event, p *Player) error {
 		return errors.New("there is no such event type")
 	}
 }
-func (s *Server) InitAPlayerCardSet(noCards int) []Card {
+func (s *Server) InitACardSet(noCards int) []Card {
 	cards := []Card{}
 	for i := 0; i < noCards; i++ {
 		p := rand.Int() % len(s.cards)
@@ -151,26 +146,26 @@ func (s *Server) InitAPlayerCardSet(noCards int) []Card {
 }
 
 func (s *Server) ReceiveAValidCard(card Card) {
-	data := strings.Split(card.Data, ":")
+	data := strings.Split(card.Data, "-")
 	if data[1] == "num" {
-		s.currCardData = data
+		s.currCardData = card.Data
 	}
 	switch data[2] {
 	case "skip":
 		s.skip1()
-		s.currCardData = data
+		s.currCardData = card.Data
 	case "reverse":
 		s.reverse()
-		s.currCardData = data
+		s.currCardData = card.Data
 	case "change":
-		s.currCardData = data
+		s.currCardData = card.Data
 	case "draw":
 		if data[3] == "2" {
 			s.draw2Stack++
-			s.currCardData = data
+			s.currCardData = card.Data
 		} else if data[3] == "4" {
 			s.draw4Stack++
-			s.currCardData = data
+			s.currCardData = card.Data
 		}
 	}
 	noPlayers := len(s.sortedPlayers)
@@ -231,9 +226,6 @@ func (s *Server) RemovePlayer(player *Player) {
 	s.Lock()
 	defer s.Unlock()
 
-	// fmt.Println("saved cards: ", player.cards)
-	// s.storage[player.name] = player.cards
-
 	for idx, ele := range s.sortedPlayers {
 		if ele.conn.RemoteAddr().String() == player.conn.RemoteAddr().String() {
 			s.sortedPlayers = append(append([]*Player{}, s.sortedPlayers[:idx]...), s.sortedPlayers[idx+1:]...)
@@ -272,25 +264,25 @@ func (s *Server) Reset() {
 	var cards []Card
 	for i := 0; i < 4; i++ {
 		for j := 1; j <= 9; j++ {
-			cards = append(cards, Card{Data: fmt.Sprintf("%v:num:%v", color[i], j)})
-			cards = append(cards, Card{Data: fmt.Sprintf("%v:num:%v", color[i], j)})
+			cards = append(cards, Card{Data: fmt.Sprintf("%v-num-%v", color[i], j)})
+			cards = append(cards, Card{Data: fmt.Sprintf("%v-num-%v", color[i], j)})
 		}
 	}
 	for i := 0; i < 4; i++ {
-		cards = append(cards, Card{Data: fmt.Sprintf("%v:num:0", color[i])})
+		cards = append(cards, Card{Data: fmt.Sprintf("%v-num-0", color[i])})
 		for j := 0; j < 2; j++ {
-			cards = append(cards, Card{Data: fmt.Sprintf("%v:fun:skip", color[i])})
-			cards = append(cards, Card{Data: fmt.Sprintf("%v:fun:reverse", color[i])})
-			cards = append(cards, Card{Data: fmt.Sprintf("%v:fun:draw:2", color[i])})
+			cards = append(cards, Card{Data: fmt.Sprintf("%v-fun-skip", color[i])})
+			cards = append(cards, Card{Data: fmt.Sprintf("%v-fun-reverse", color[i])})
+			cards = append(cards, Card{Data: fmt.Sprintf("%v-fun-draw-2", color[i])})
 		}
-		cards = append(cards, Card{Data: "*:fun:change"})
-		cards = append(cards, Card{Data: "*:fun:draw:4"})
+		cards = append(cards, Card{Data: "+-fun-change"})
+		cards = append(cards, Card{Data: "+-fun-draw-4"})
 	}
 	s.cards = cards
 	s.direction = 1
 	s.nextID = 0
 	s.pos = 0
-	s.currCardData = []string{"*"}
+	s.currCardData = "+-+"
 	s.handlers = make(map[string]EventHandler)
 	s.sortedPlayers = []*Player{}
 	s.IsPlaying = false

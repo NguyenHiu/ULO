@@ -1,4 +1,4 @@
-import { C } from './const.js'
+import { C } from './constants.js'
 
 export class Context {
     constructor(currData, stack2, stack4, allowStack2, allowStack4, allowStack4Over2, noplayer, playernames, playernocards, currentPlayerName) {
@@ -15,10 +15,12 @@ export class Context {
     }
 
     // data: string array
-    checkNextCardIsValid(data) {
-        if (this.currData[C.COLOR] == "**")
+    checkNextCardIsValid(card) {
+        let data = card.split("-")
+        let currdata = this.currData.split("-")
+        if (currdata[C.COLOR] == "*")
             return false;
-        else if (this.currData[C.COLOR] == "*")
+        else if (currdata[C.COLOR] == "+")
             return true;
         else if (data[C.TYPE] == C.NUM) {
             return this.checkNumCard(data);
@@ -30,18 +32,20 @@ export class Context {
 
     // data: string array
     checkNumCard(data) {
+        let currdata = this.currData.split("-")
         if ((this.stack2 != 0) || (this.stack4 != 0))
             return false;
 
-        if (this.currData[C.TYPE] == C.NUM)
-            return (this.currData[C.COLOR] == data[C.COLOR]) ||
-                (this.currData[C.DATA] == data[C.DATA]);
+        if (currdata[C.TYPE] == C.NUM)
+            return (currdata[C.COLOR] == data[C.COLOR]) ||
+                (currdata[C.DATA] == data[C.DATA]);
 
-        return this.currData[C.COLOR] == data[C.COLOR];
+        return currdata[C.COLOR] == data[C.COLOR];
     }
 
     // data: string array
     checkFunCard(data) {
+        let currdata = this.currData.split("-")
         switch (data[C.DATA]) {
             case "change":
                 return (this.stack2 == 0) && (this.stack4 == 0)
@@ -49,26 +53,26 @@ export class Context {
             case "skip":
             case "reverse":
                 return (this.stack2 == 0) && (this.stack4 == 0) && (
-                    (this.currData[C.DATA] == data[C.DATA]) ||
-                    (this.currData[C.COLOR] == data[C.COLOR])
+                    (currdata[C.DATA] == data[C.DATA]) ||
+                    (currdata[C.COLOR] == data[C.COLOR])
                 )
 
             case "draw":
-                if (this.currData[C.DATA] == "draw") {
+                if (currdata[C.DATA] == "draw") {
                     if (data[C.PAR] == "2") {
-                        return (this.currData[C.PAR] == "2") && this.allowStack2
+                        return (currdata[C.PAR] == "2") && this.allowStack2
                     } else if (data[C.PAR] == "4") {
-                        return ((this.currData[C.PAR] == "4") && this.allowStack4) ||
-                            ((this.currData[C.PAR] == "2") && this.allowStack4Over2)
+                        return ((currdata[C.PAR] == "4") && this.allowStack4) ||
+                            ((currdata[C.PAR] == "2") && this.allowStack4Over2)
                     } else {
-                        alert("can not detect the card")
+                        console.log("checkFunCard() can not detect the functional of drawing card")
                     }
                 } else {
                     return true;
                 }
 
             default:
-                alert("what kind of functional card is this???")
+                console.log("checkFunCard() can not detect the function of this card")
         }
         return false;
     }

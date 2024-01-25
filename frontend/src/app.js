@@ -1,120 +1,104 @@
-import { C, Event } from './const.js'
+import { C, Event, Obj } from './constants.js'
 import { Player } from './player.js'
 import { routeEvent } from './route.js'
 
 window.onload = function () {
     if (!window["WebSocket"]) {
-        alert("browser does not support websocket");
+        alert("Browser does not support websocket");
         return
     }
 
-    // vars
-    let CONN = new WebSocket("ws://" + document.location.host + "/ws")
-    let MyPlayer = new Player()
-    let MyPlayerName = ""
+    let PlayerData = {
+        Data: new Player(),
+        Name: "",
+        SC: new WebSocket("ws://" + document.location.host + "/ws")
+    }
 
-    // html elements
-    let name = document.getElementById("nameInput");
-    let nameBTN = document.getElementById("nameButton");
-    let currentCardSlot = document.getElementById("current_card_slot")
-    let drawBtn = document.getElementById("btn_draw")
-    let playBtn = document.getElementById("btn_play")
 
-    let chooseColor_red = document.getElementById("choose-color-red")
-    let chooseColor_green = document.getElementById("choose-color-green")
-    let chooseColor_blue = document.getElementById("choose-color-blue")
-    let chooseColor_yellow = document.getElementById("choose-color-yellow")
+    Obj.LoginButton.disabled = true;
+    setTimeout(function () { Obj.LoginButton.disabled = false; }, 2000)
 
-    nameBTN.disabled = true;
-    setTimeout(function () {
-        nameBTN.disabled = false;
-
-        drawBtn.onclick = function (e) {
-            let n = 1
-            if (MyPlayer.ctx.stack2 != 0 || MyPlayer.ctx.stack4 != 0) {
-                n = MyPlayer.ctx.stack2 * 2 + MyPlayer.ctx.stack4 * 4
-            }
-            SendMessage("draw_cards", {
-                id: MyPlayer.id,
-                amount: n
-            })
+    Obj.LoginButton.onclick = function (e) {
+        if (Obj.LoginInput.value == "") {
+            alert("Invalid name!")
+            return
         }
+        PlayerData.Name = Obj.LoginInput.value
+        SendMessage("request_data", { name: PlayerData.Name })
+    }
 
-        nameBTN.onclick = function (e) {
-            if (name.value == "") {
-                alert("name field is empty")
-                return
-            }
-
-            MyPlayerName = name.value;
-
-            let payload = {
-                name: MyPlayerName
-            }
-            SendMessage("request_data", payload)
-        }
-
-        //  0: can not found
-        //  1: exists & valid
-        // -1: exists but not valid
-        let findActiveCard = function (cardsRowObj, offset) {
-            for (let i = 0; i < cardsRowObj.childElementCount; i++) {
-                if (cardsRowObj.childNodes[i].firstChild.className.includes("active_card")) {
-                    let data = cardsRowObj.childNodes[i].firstChild.id.replace("+", "*").split(C.FE_SEPARATOR)
-                    if (!MyPlayer.checkNextCardIsValid(data)) {
-                        alert("you can not play this card")
-                        return -1
-                    }
-
-                    let payload = {
-                        "id": MyPlayer.id,
-                        "card": data,
-                        "cardPos": i + offset
-                    }
-                    SendMessage("play_card", payload)
-                    return 1
+    Obj.PlayButton.onclick = function (e) {
+        let activeCard = document.getElementsByClassName("m-active-card")[0]
+        if (activeCard != null) {
+            if (PlayerData.Data.ctx.checkNextCardIsValid(activeCard.id)) {
+                let idx = Array.prototype.indexOf.call(Obj.UpperCardSet.children, activeCard.parentNode)
+                if (idx != -1) {
+                    SendMessage("play_card", {
+                        id: PlayerData.Data.id,
+                        card: activeCard.id.split(C.SEPARATOR),
+                        cardPos: idx
+                    })
                 }
-            }
-            return 0
-        }
+                idx = Array.prototype.indexOf.call(Obj.BelowCardSet.children, activeCard.parentNode)
+                if (idx != -1) {
+                    SendMessage("play_card", {
+                        id: PlayerData.Data.id,
+                        card: activeCard.id.split(C.SEPARATOR),
+                        cardPos: idx + Obj.UpperCardSet.children.length
+                    })
+                }
+                console.log("Congratulation! You found a bug!")
+            } else console.log("The selected card is not valid in this context")
+        } else console.log("You did not choose any card")
+    }
 
-        playBtn.onclick = function (e) {
-            let cards1 = document.getElementById("cards-1")
-            let cards2 = document.getElementById("cards-2")
-            if (findActiveCard(cards1, 0) == 0)
-                findActiveCard(cards2, cards1.childElementCount)
-        }
+    Obj.DrawButton.onclick = function (e) {
+        let amount = PlayerData.Data.ctx.stack2 * 2 + PlayerData.Data.ctx.stack4 * 4
+        console.log("amount: " + amount);
+        SendMessage("draw_cards", {
+            id: PlayerData.Data.id,
+            amount: ((amount == 0) ? 1 : amount)
+        })
+    }
 
-        let chooseColor_onclick = function (c) {
-            let payload = { color: c }
-            SendMessage("choose_color_response", payload)
-            document.getElementById("choose-color").style.visibility = "hidden"
-            document.getElementById("cover").style.visibility = "hidden"
-        }
+    let chooseColor_onclick = function (c) {
+        SendMessage("choose_color_response", { color: c })
+        Obj.ChooseColorLayout.hidden = true
+    }
+    Obj.ColorRed.onclick = function (e) { chooseColor_onclick(C.R) }
+    Obj.ColorGreen.onclick = function (e) { chooseColor_onclick(C.G) }
+    Obj.ColorBlue.onclick = function (e) { chooseColor_onclick(C.B) }
+    Obj.ColorYellow.onclick = function (e) { chooseColor_onclick(C.Y) }
 
-        chooseColor_red.onclick = function (e) { chooseColor_onclick(C.R) }
-        chooseColor_green.onclick = function (e) { chooseColor_onclick(C.G) }
-        chooseColor_blue.onclick = function (e) { chooseColor_onclick(C.B) }
-        chooseColor_yellow.onclick = function (e) { chooseColor_onclick(C.Y) }
+    Obj.DrawedButtonPlay.onclick = function (e) {
+        let objID = Obj.DrawedCardSlot.children[0].id
+        if (PlayerData.Data.ctx.checkNextCardIsValid(objID)) {
+            SendMessage("play_card", {
+                id: PlayerData.Data.id,
+                card: objID.split(C.SEPARATOR),
+                cardPos: PlayerData.Data.cards.length - 1
+            })
+            Obj.DrawOrSkip.hidden = true
+        } else console.log("The selected card is not valid in this context")
+    }
 
+    Obj.DrawedButtonSkip.onclick = function (e) {
+        Obj.DrawOrSkip.hidden = true
+        SendMessage("next_player", {})
+    }
 
-        function SendMessage(msgType, msgPayload) {
-            let event = new Event(msgType, msgPayload);
-            console.log("SendMessage()");
-            console.log(event);
-            CONN.send(JSON.stringify(event))
-        }
+    function SendMessage(msgType, msgPayload) {
+        let event = new Event(msgType, msgPayload)
+        console.log("Send Message: " + event.type)
+        PlayerData.SC.send(JSON.stringify(event))
+    }
 
-
-        CONN.onmessage = function (e) {
-            let data = JSON.parse(e.data);
-            let event = Object.assign(new Event, data);
-            console.log("on receive: ");
-            console.log(event);
-            routeEvent(event, MyPlayer, MyPlayerName, currentCardSlot);
-        }
-
-    }, 2000)
+    PlayerData.SC.onmessage = function (e) {
+        let data = JSON.parse(e.data);
+        let event = Object.assign(new Event, data);
+        console.log("Receive Message: " + event.type);
+        routeEvent(event, PlayerData);
+    }
 }
 
 

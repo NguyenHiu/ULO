@@ -1,61 +1,66 @@
 import { Context } from './context.js'
-import { Card } from './const.js'
-import { updateUI } from './utils.js'
+import { Cards, Obj } from './constants.js'
+import { ChooseColorTrigger, updateUI } from './utils.js'
 
-export function routeEvent(event, CurrentPlayer, PlayerName, currentCardSlot) {
+export function routeEvent(event, PlayerData) {
     if (event.type === undefined) {
-        alert("no type field in the event");
-        return;
+        console.log("Invalid Event's Type")
+        return
     }
 
     switch (event.type) {
         case "game_is_playing":
-            alert("the game is playing, u can not join")
-            CONN.close()
-            document.getElementsByTagName("body")[0].innerHTML = '404 not found, kaka'
+            alert("The game is currently in progress")
+            PlayerData.SC.close()
+            document.getElementsByTagName("body")[0].innerHTML = '<h1>404 NOT FOUND<h1>'
             break;
 
         case "init_player":
-            document.getElementById("data").hidden = false;
-            document.getElementById("login").hidden = true;
-            CurrentPlayer.id = event.payload.id
-            // cards
-            for (let i = 0; i < event.payload.cards.length; i++) {
-                // console.log("event.payload.cards[i]:");
-                // console.log(event.payload.cards[i]);
-                CurrentPlayer.cards[i] = new Card(event.payload.cards[i].data)
-            }
-            // ctx
-            CurrentPlayer.ctx = Object.assign(new Context, event.payload.ctx)
-            updateUI(CurrentPlayer, PlayerName, currentCardSlot);
-            break;
+            Obj.LoginPage.hidden = true
+            Obj.GameBoard.hidden = false
+
+            PlayerData.Data.id = event.payload.id
+            PlayerData.Data.cards = event.payload.cards
+            PlayerData.Data.ctx = Object.assign(new Context, event.payload.ctx)
+            updateUI(PlayerData)
+            break
 
         case "update_state":
             let newCTX = Object.assign(new Context, event.payload)
-            CurrentPlayer.setNewContext(newCTX)
-            updateUI(CurrentPlayer, PlayerName, currentCardSlot);
-            break;
+            PlayerData.Data.setNewContext(newCTX)
+            updateUI(PlayerData)
+            break
 
         case "update_cards":
-            CurrentPlayer.cards = []
-            CurrentPlayer.addNewCards(event.payload)
-            updateUI(CurrentPlayer, PlayerName, currentCardSlot);
-            break;
+            PlayerData.Data.cards = []
+            PlayerData.Data.addNewCards(event.payload)
+            console.log("payload: ");
+            console.log(event.payload);
+            updateUI(PlayerData)
+            break
 
         case "choose_color":
-            chooseColorTrigger()
-            break;
+            ChooseColorTrigger();
+            break
+
+        case "draw_1_skip_or_play":
+            let tmp = Cards[event.payload.id].cloneNode(true)
+            tmp.className += " m-drawed-card"
+            Obj.DrawedCardSlot.innerHTML = ''
+            Obj.DrawedCardSlot.appendChild(tmp)
+            Obj.DrawOrSkip.hidden = false;
+            break
 
         case "end_game":
-            alert("player '" + event.payload.winner + "' has 0 card. End game!")
             SendMessage("close_connect", {})
-            CONN.close();
-            location.reload();
-            break;
+            PlayerData.SC.close()
+            location.reload()
+            alert(event.payload.winner + " wins.\nEnd game!")
+            break
 
         default:
-            alert("do not support this type of message");
-            break;
+            console.log("Event does not support this type, type: " + event.type)
+            break
     }
 
 }

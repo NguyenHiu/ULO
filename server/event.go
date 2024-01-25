@@ -27,7 +27,8 @@ const (
 	EventChooseColorResponse = "choose_color_response"
 	EventAppearWinner        = "end_game"
 	EventCloseConnect        = "close_connect"
-	// Event
+	EventRequestAChoice      = "draw_1_skip_or_play"
+	EventNextPlayer          = "next_player"
 )
 
 type PlayCardEvent struct {
@@ -52,7 +53,7 @@ func PlayCard(event Event, p *Player) error {
 	}
 
 	if p.manager.sortedPlayers[p.manager.pos].id == data.ID {
-		p.manager.ReceiveAValidCard(Card{Data: strings.Join(data.CardData, ":")})
+		p.manager.ReceiveAValidCard(Card{Data: strings.Join(data.CardData, "-")})
 		p.RemoveCardAt(data.CardPos)
 
 		// update this player's cards
@@ -66,14 +67,12 @@ func PlayCard(event Event, p *Player) error {
 		}
 
 		if data.CardData[2] == "change" {
-			p.manager.currCardData = []string{"**"}
+			p.manager.currCardData = "*"
 			emptyPayload, _ := json.Marshal(struct{}{})
 			p.egress <- Event{
 				Type:    EventChooseColor,
 				Payload: emptyPayload,
 			}
-			p.manager.IsFreezing = true
-			p.manager.FreezeReason = "someone is choosing color"
 		}
 
 		if len(p.cards) == 0 {
@@ -128,11 +127,14 @@ func DrawCards(event Event, p *Player) error {
 		return fmt.Errorf("Draw1(), can not unmarshal event payload, err: %v", err)
 	}
 
+	fmt.Printf("Amount: %v", data.Amount)
+
 	if p.manager.sortedPlayers[p.manager.pos].id == data.ID {
 		cards := p.manager.Draw(data.Amount)
 		if len(p.cards)+data.Amount <= 35 {
 			p.cards = append(p.cards, cards...)
 		}
+		fmt.Printf("p.cards: %v", p.cards)
 
 		// update this player's cards
 		cardsData, err := json.Marshal(p.cards)
@@ -146,17 +148,23 @@ func DrawCards(event Event, p *Player) error {
 
 		noPlayers := len(p.manager.sortedPlayers)
 		if p.manager.draw4Stack != 0 {
-			p.manager.currCardData = []string{"**"}
+			p.manager.currCardData = "*"
 			emptyPayload, _ := json.Marshal(struct{}{})
 			p.manager.sortedPlayers[((p.manager.pos-p.manager.direction)%noPlayers+noPlayers)%noPlayers].egress <- Event{
 				Type:    EventChooseColor,
 				Payload: emptyPayload,
 			}
-			p.manager.IsFreezing = true
-			p.manager.FreezeReason = "someone is choosing color"
 		}
 
-		p.manager.pos = ((p.manager.pos+p.manager.direction)%noPlayers + noPlayers) % noPlayers
+		if data.Amount != 1 {
+			p.manager.pos = ((p.manager.pos+p.manager.direction)%noPlayers + noPlayers) % noPlayers
+		} else {
+			payload, _ := json.Marshal(cards[0])
+			p.egress <- Event{
+				Type:    EventRequestAChoice,
+				Payload: payload,
+			}
+		}
 		p.manager.draw2Stack = 0
 		p.manager.draw4Stack = 0
 
@@ -197,45 +205,9 @@ func RequestData(event Event, p *Player) error {
 		return fmt.Errorf("can not unmarshal request data, err: %v", err)
 	}
 
-	// if cards, ok := p.manager.storage[data.Name]; ok {
-	// 	log.Println("requestData, found data")
-	// 	fmt.Println("cards: ", cards)
-
-	// 	p.cards = cards
-	// 	p.name = data.Name
-	// 	p.manager.sortedPlayers = append(p.manager.sortedPlayers, p)
-	// 	ctx := *p.manager.getContext()
-	// 	playerSlotByte, err := json.Marshal(&PlayerSlot{
-	// 		ID:    p.id,
-	// 		Cards: p.cards,
-	// 		Ctx:   ctx,
-	// 	})
-
-	// 	if err != nil {
-	// 		return fmt.Errorf("can not marshal cards, err: %v", err)
-	// 	}
-	// 	p.egress <- Event{
-	// 		Type:    EventInitPlayer,
-	// 		Payload: playerSlotByte,
-	// 	}
-
-	// 	payload, err := json.Marshal(ctx)
-	// 	if err != nil {
-	// 		return fmt.Errorf("can not marshal context, error: %v", err)
-	// 	}
-	// 	updateStateEvent := Event{
-	// 		Type:    EventUpdateState,
-	// 		Payload: payload,
-	// 	}
-	// 	for _, pp := range p.manager.sortedPlayers {
-	// 		if pp.name != p.name {
-	// 			pp.egress <- updateStateEvent
-	// 		}
-	// 	}
-	// } else {
 	log.Println("requestData, not found data")
 
-	p.cards = p.manager.InitAPlayerCardSet(NOCARD)
+	p.cards = p.manager.InitACardSet(NOCARD)
 	p.name = data.Name
 	p.manager.sortedPlayers = append(p.manager.sortedPlayers, p)
 	ctx := *p.manager.getContext()
@@ -244,6 +216,8 @@ func RequestData(event Event, p *Player) error {
 		Cards: p.cards,
 		Ctx:   ctx,
 	})
+
+	fmt.Printf("cards: %v", p.cards)
 
 	if err != nil {
 		return fmt.Errorf("can not marshal new cards, err: %v", err)
@@ -266,7 +240,6 @@ func RequestData(event Event, p *Player) error {
 			pp.egress <- updateStateEvent
 		}
 	}
-	// }
 
 	return nil
 }
@@ -282,7 +255,7 @@ func ChooseColorResponse(event Event, p *Player) error {
 		return fmt.Errorf("can not unmarshal choose color payload, err: %v", err)
 	}
 
-	p.manager.currCardData = []string{chooseColor.Color, "*"}
+	p.manager.currCardData = chooseColor.Color + "-+"
 	ctxBytes, err := json.Marshal(p.manager.getContext())
 	if err != nil {
 		return fmt.Errorf("can not marshal new ctx after choosing color, err: %v", err)
@@ -302,5 +275,11 @@ func ChooseColorResponse(event Event, p *Player) error {
 
 func CloseConnectReload(event Event, p *Player) error {
 	p.conn.Close()
+	return nil
+}
+
+func NextPlayer(event Event, p *Player) error {
+	noPlayers := len(p.manager.sortedPlayers)
+	p.manager.pos = ((p.manager.pos+p.manager.direction)%noPlayers + noPlayers) % noPlayers
 	return nil
 }

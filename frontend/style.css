@@ -13,6 +13,10 @@ body {
     transform: translate(-50%, 0%);
 }
 
+.m-active-card {
+    transform: translate(0%, -50%);
+}
+
 .m-player-represent {
     /* background-color: pink; */
     margin: auto;
@@ -25,6 +29,17 @@ body {
 .m-active-player {
     background-color: rgb(244, 244, 150);
     box-shadow: 0 0 12px rgb(202, 202, 55);;
+}
+
+.m-curr-player {
+    position: relative;
+}
+
+#m-curr-player-slot > div {
+    position: absolute;
+    bottom: 0%;
+    left: 50%;
+    transform: translate(-50%, 0%);
 }
 
 #m-curr-card-slot {

@@ -1,5 +1,3 @@
-import { Card } from './const.js'
-
 export class Player {
     constructor(id = 0, cards = [], ctx = "") {
         this.id = id
@@ -11,33 +9,9 @@ export class Player {
         this.ctx = newCTX
     }
 
-    // data: string array
-    checkNextCardIsValid(data) {
-        // console.log("this ctx");
-        // console.log(this.ctx);
-        return this.ctx.checkNextCardIsValid(data)
-    }
-
     addNewCards(cards) {
         for (let i = 0; i < cards.length; i++) {
-            this.cards.push(new Card(cards[i].data))
+            this.cards.push(cards[i])
         }
     }
-}
-
-export function createPlayerObject(name, noCards) {
-    if (name.length > 6) {
-        name = name.slice(0, 7)
-    }
-
-    let newObj = document.createElement("div")
-    let p1 = document.createElement("p")
-    p1.innerHTML = name
-    let p2 = document.createElement("p")
-    p2.innerHTML = noCards
-    newObj.appendChild(p1)
-    newObj.appendChild(p2)
-    newObj.className += " player";
-
-    return newObj
 }
