@@ -12,26 +12,6 @@
 </head>
 
 <body>
-    <!-- templates -->
-    <div id="tpl" hidden>
-        <!-- row template -->
-        <div class="row">
-            <div class="col m-left-column"></div>
-            <div class="col-7"></div>
-            <div class="col m-right-column"></div>
-        </div>
-
-        <!-- player's card templte -->
-        <div style="width: 5%">
-            <img src="" style="width: 100%;">
-        </div>
-
-        <!-- player representation -->
-        <div class="row" style="margin: auto;">
-            <p class="m-player-represent"></p>
-        </div>
-    </div>
-
     <!-- login page -->
     <div id="m-login-page" hidden>
         <div class="container text-center" style="position: absolute; top: 25%; transform: translate(0%, -50%);">
@@ -61,7 +41,6 @@
                 </div>
             </div>
         </div>
-    </div>
     </div>
 
     <!-- game board -->
@@ -125,10 +104,12 @@
                     </div>
                 </div>
 
-                <div class="row" style="position: absolute; bottom: 0%; left: 50%; transform: translate(-50%, 0%);">
-                    <p class="m-player-represent" id="m-curr-player">
-                        Firefox, 12
-                    </p>
+                <div id="m-curr-player-slot">
+                    <div class="row">
+                        <p class="m-player-represent">
+                            Firefox, 1223
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -297,7 +278,7 @@
     </div>
 
     <!-- choose color -->
-    <div id="m-choose-color" hidden>
+    <div id="m-choose-color" style="visibility: hidden;">
         <!-- cover -->
         <div
             style="position: absolute; left: 0%; top: 0%; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.7);">
@@ -344,10 +325,92 @@
         </div>
     </div>
 
+    <!-- resources -->
+    <div hidden>
+        <!-- templates -->
+        <div id="tpl">
+            <!-- player's card template -->
+            <div style="width: 5%">
+            </div>
+
+            <!-- player representation -->
+            <div class="row" style="margin: auto;">
+                <p class="m-player-represent"></p>
+            </div>
+        </div>
+
+        <!-- cards -->
+        <div>
+            <img src="./cards/red-+.png" id="red-+">
+            <img src="./cards/green-+.png" id="green-+">
+            <img src="./cards/blue-+.png" id="blue-+">
+            <img src="./cards/yellow-+.png" id="yellow-+">
+
+            <img src="./cards/blue-num-0.png" id="blue-num-0">
+            <img src="./cards/blue-num-1.png" id="blue-num-1">
+            <img src="./cards/blue-num-2.png" id="blue-num-2">
+            <img src="./cards/blue-num-3.png" id="blue-num-3">
+            <img src="./cards/blue-num-4.png" id="blue-num-4">
+            <img src="./cards/blue-num-5.png" id="blue-num-5">
+            <img src="./cards/blue-num-6.png" id="blue-num-6">
+            <img src="./cards/blue-num-7.png" id="blue-num-7">
+            <img src="./cards/blue-num-8.png" id="blue-num-8">
+            <img src="./cards/blue-num-9.png" id="blue-num-9">
+            <img src="./cards/blue-fun-draw-2.png" id="blue-fun-draw-2">
+            <img src="./cards/blue-fun-reverse.png" id="blue-fun-reverse">
+            <img src="./cards/blue-fun-skip.png" id="blue-fun-skip">
+
+            <img src="./cards/red-num-0.png" id="red-num-0">
+            <img src="./cards/red-num-1.png" id="red-num-1">
+            <img src="./cards/red-num-2.png" id="red-num-2">
+            <img src="./cards/red-num-3.png" id="red-num-3">
+            <img src="./cards/red-num-4.png" id="red-num-4">
+            <img src="./cards/red-num-5.png" id="red-num-5">
+            <img src="./cards/red-num-6.png" id="red-num-6">
+            <img src="./cards/red-num-7.png" id="red-num-7">
+            <img src="./cards/red-num-8.png" id="red-num-8">
+            <img src="./cards/red-num-9.png" id="red-num-9">
+            <img src="./cards/red-fun-draw-2.png" id="red-fun-draw-2">
+            <img src="./cards/red-fun-reverse.png" id="red-fun-reverse">
+            <img src="./cards/red-fun-skip.png" id="red-fun-skip">
+
+            <img src="./cards/green-num-0.png" id="green-num-0">
+            <img src="./cards/green-num-1.png" id="green-num-1">
+            <img src="./cards/green-num-2.png" id="green-num-2">
+            <img src="./cards/green-num-3.png" id="green-num-3">
+            <img src="./cards/green-num-4.png" id="green-num-4">
+            <img src="./cards/green-num-5.png" id="green-num-5">
+            <img src="./cards/green-num-6.png" id="green-num-6">
+            <img src="./cards/green-num-7.png" id="green-num-7">
+            <img src="./cards/green-num-8.png" id="green-num-8">
+            <img src="./cards/green-num-9.png" id="green-num-9">
+            <img src="./cards/green-fun-draw-2.png" id="green-fun-draw-2">
+            <img src="./cards/green-fun-reverse.png" id="green-fun-reverse">
+            <img src="./cards/green-fun-skip.png" id="green-fun-skip">
+
+            <img src="./cards/yellow-num-0.png" id="yellow-num-0">
+            <img src="./cards/yellow-num-1.png" id="yellow-num-1">
+            <img src="./cards/yellow-num-2.png" id="yellow-num-2">
+            <img src="./cards/yellow-num-3.png" id="yellow-num-3">
+            <img src="./cards/yellow-num-4.png" id="yellow-num-4">
+            <img src="./cards/yellow-num-5.png" id="yellow-num-5">
+            <img src="./cards/yellow-num-6.png" id="yellow-num-6">
+            <img src="./cards/yellow-num-7.png" id="yellow-num-7">
+            <img src="./cards/yellow-num-8.png" id="yellow-num-8">
+            <img src="./cards/yellow-num-9.png" id="yellow-num-9">
+            <img src="./cards/yellow-fun-draw-2.png" id="yellow-fun-draw-2">
+            <img src="./cards/yellow-fun-reverse.png" id="yellow-fun-reverse">
+            <img src="./cards/yellow-fun-skip.png" id="yellow-fun-skip">
+
+            <img src="./cards/+-fun-change.png" id="+-fun-change">
+            <img src="./cards/+-fun-draw-4.png" id="+-fun-draw-4">
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
         crossorigin="anonymous"></script>
-
+    <script type="module" src="./src/app.js"></script>
 </body>
 
 </html>
