@@ -35,6 +35,7 @@ type Context struct {
 	NoPlayer          int      `json:"noplayer"`
 	PlayerNames       []string `json:"playernames"`
 	PlayerNoCards     []int    `json:"playernocards"`
+	UnoNames          []string `json:"unonames"`
 	CurrentPlayerName string   `json:"currentPlayerName"`
 }
 
@@ -101,14 +102,21 @@ func (s *Server) setupEventHandlers() {
 	s.handlers[EventChooseColorResponse] = ChooseColorResponse
 	s.handlers[EventCloseConnect] = CloseConnectReload
 	s.handlers[EventNextPlayer] = NextPlayer
+	s.handlers[EventUnoCall] = UnoCall
+	s.handlers[EventUnoPunish] = UnoPunish
 }
 
 func (s *Server) getContext() *Context {
 	name := []string{}
 	nocards := []int{}
+	unoNames := []string{}
+	fmt.Printf("length of sorted players: %v", len(s.sortedPlayers))
 	for _, p := range s.sortedPlayers {
 		name = append(name, p.name)
 		nocards = append(nocards, len(p.cards))
+		if p.isUNO {
+			unoNames = append(unoNames, p.name)
+		}
 	}
 
 	return &Context{
@@ -121,6 +129,7 @@ func (s *Server) getContext() *Context {
 		NoPlayer:          len(s.sortedPlayers),
 		PlayerNames:       name,
 		PlayerNoCards:     nocards,
+		UnoNames:          unoNames,
 		CurrentPlayerName: s.sortedPlayers[s.pos].name,
 	}
 }
@@ -216,6 +225,7 @@ func (s *Server) AddPlayer(conn *websocket.Conn) {
 		egress:  make(chan Event),
 		cards:   []Card{},
 		name:    "",
+		isUNO:   false,
 	}
 
 	go player.readMessage()
@@ -225,12 +235,19 @@ func (s *Server) AddPlayer(conn *websocket.Conn) {
 func (s *Server) RemovePlayer(player *Player) {
 	s.Lock()
 	defer s.Unlock()
-
+	fmt.Println("Removeing a player")
 	for idx, ele := range s.sortedPlayers {
 		if ele.conn.RemoteAddr().String() == player.conn.RemoteAddr().String() {
 			s.sortedPlayers = append(append([]*Player{}, s.sortedPlayers[:idx]...), s.sortedPlayers[idx+1:]...)
 			break
 		}
+	}
+
+	noPlayers := len(s.sortedPlayers)
+	if noPlayers != 0 {
+		s.pos = ((s.pos+s.direction)%noPlayers + noPlayers) % noPlayers
+	} else {
+		s.pos = 0
 	}
 
 	if len(s.sortedPlayers) == 0 {
@@ -286,5 +303,7 @@ func (s *Server) Reset() {
 	s.handlers = make(map[string]EventHandler)
 	s.sortedPlayers = []*Player{}
 	s.IsPlaying = false
+	s.draw2Stack = 0
+	s.draw4Stack = 0
 	s.setupEventHandlers()
 }

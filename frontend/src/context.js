@@ -1,7 +1,7 @@
 import { C } from './constants.js'
 
 export class Context {
-    constructor(currData, stack2, stack4, allowStack2, allowStack4, allowStack4Over2, noplayer, playernames, playernocards, currentPlayerName) {
+    constructor(currData, stack2, stack4, allowStack2, allowStack4, allowStack4Over2, noplayer, playernames, playernocards, unonames, currentPlayerName) {
         this.currData = currData
         this.stack2 = stack2
         this.stack4 = stack4
@@ -11,6 +11,7 @@ export class Context {
         this.noplayer = noplayer
         this.playernames = playernames
         this.playernocards = playernocards
+        this.unonames = unonames
         this.currentPlayerName = currentPlayerName
     }
 
@@ -67,9 +68,9 @@ export class Context {
                     } else {
                         console.log("checkFunCard() can not detect the functional of drawing card")
                     }
-                } else {
-                    return true;
-                }
+                } else if (data[C.PAR] == "2")
+                    return data[C.COLOR] == currdata[C.COLOR]
+                else return true;
 
             default:
                 console.log("checkFunCard() can not detect the function of this card")

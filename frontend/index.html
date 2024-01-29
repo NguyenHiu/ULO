@@ -13,31 +13,41 @@
 
 <body>
     <!-- login page -->
-    <div id="m-login-page">
-        <div class="container text-center" style="position: absolute; top: 25%; transform: translate(0%, -50%);">
-            <div class="col">
-                <h1>~ULO~</h1>
-            </div>
-            <div class="col">Welcome to my game</div>
-            <div class="col" style="padding: 20px 50px;">All the logic in this game is based on our house-rules!</div>
-        </div>
-        <div class="container text-center" style="position: absolute; top: 50%;">
-            <div class="row" style="margin-bottom: 20px;">
-                <b>Login</b>
-            </div>
-            <div class="row" style="margin-bottom: 20px;">
-                <div class="col">
-                    <p style="margin: auto;">Username:</p>
+
+    <div id="m-login-page" style="width: 100vw; height: 100vh; z-index: 1">
+        <img src="./welcome.png" style="position: absolute; top: 0%; left: 0%; width: 100vw; height: 100vh;">
+        <div class="container text-center h-100">
+            <div class="row h-50">
+                <div class="col h-50">
+                    <div style="position: absolute; left: 50%; top: 0%; transform: translate(-50%, 0%);">
+                        <h1 style="margin-top: 20px">~ULO~</h1>
+                        <b>Welcome to my game <br>
+                            All the logic in this game is based on our house-rules!</b>
+                    </div>
                 </div>
-                <div class="col"><input type="text" id="m-login-name-input"></div>
             </div>
-            <div class="row">
+
+            <div class="row h-50" style="position: relative;">
                 <div class="col">
-                    <button
-                        style="position: absolute; left:50%; transform: translate(-50%, 0%); border-radius: 5px; padding: 5px 35px;"
-                        id="m-login-submit-button">
-                        submit
-                    </button>
+                    <div class="row">
+                        <b>Join the game</b>
+                    </div>
+                    <div class="row gx-0" style="margin-top: 20px">
+                        <div class="col"></div>
+                        <div class="col ">
+                            <b class="align-middle">Username:</b>
+                        </div>
+                        <div class="col"><input type="text" id="m-login-name-input"></div>
+                        <div class="col"></div>
+                    </div>
+                    <div class="row" style="margin-top: 20px">
+                        <div class="col">
+                            <button id="m-login-submit-button"
+                                style="border: 2px solid black; border-radius: 5px; padding: 5px 20px;">
+                                Join
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -45,12 +55,16 @@
 
     <!-- game board -->
     <div id="m-game-board" hidden>
+        <div>
+            <img src="./background.png"
+                style="position: absolute; top: 0%; left: 0%; width: 100vw; height: 100vh; z-index: 0;">
+        </div>
         <!-- players -->
         <div style="height: 70vh; position: relative;">
             <div class="container-fluid text-center h-100 d-flex flex-column">
 
                 <!-- top  -->
-                <div class="row" style="margin-top: 5px;">
+                <div class="row" style="margin-top: 5px">
                     <div class="col"></div>
                     <div class="col-10">
                         <div class="col d-flex flex-row justify-content-around" id="m-top-row">
@@ -69,7 +83,18 @@
                     </div>
 
                     <!-- center -->
-                    <div class="col-7"></div>
+                    <div class="col-7" style="position: relative;">
+
+                        <!-- context 1 -->
+                        <div id="m-curr-card-slot">
+                            <img src="./cards/+-+.png" class="m-curr-card">
+                        </div>
+
+                        <button id="m-button-draw">Draw</button>
+                        <button id="m-button-play"> Play </button>
+                        <button id="m-button-call-uno">UNO! </button>
+
+                    </div>
 
                     <!-- right -->
                     <div class="col h-100 d-flex flex-column justify-content-around" id="m-right-col">
@@ -85,43 +110,20 @@
             </div>
         </div>
 
-        <!-- context -->
-        <div style="position: absolute; left: 0; top: 0; height: 100vh; width: 100vw">
-            <div id="m-curr-card-slot">
-                <img src="./cards/+-+.png" class="m-curr-card">
-            </div>
 
-            <button id="m-button-draw">Draw</button>
-            <button id="m-button-play"> Play </button>
-            <button id="m-button-call-uno">UNO! </button>
-
-            <div id="m-drawed-card-switch" hidden>
-                <div id="cover"
-                    style="position: absolute; left: 0; top: 0; height: 100vh; width: 100vw; background-color: rgba(0,0,0,0.6); z-index: 99;">
-                </div>
-                <div id="m-drawed-card-slot">
-                </div>
-
-                <button id="m-button-drawed-play">Play</button>
-                <button id="m-button-drawed-skip">Skip</button>
-            </div>
-
-        </div>
 
         <!-- sets of cards -->
-        <div style="height: 30vh; margin: 5px 20px 0px; position: relative;">
-            <div class="container w-100 h-100" style="position: relative;">
-                <div class="row gx-0 gy-0 w-100 m-card-row" style="top: 0;">
+        <div style="height: 30vh; margin: 5px 20px 0px; position: relative; z-index: 10">
+            <div class="container w-100 h-100">
+                <div class=" row gx-0 gy-0 w-100 h-50" style="top: 0;">
                     <!-- the upper set of card -->
-                    <div class="col d-flex flex-row justify-content-around" style="width: 5%;"
-                        id="m-upper-set-of-cards">
+                    <div class="col-sm-auto h-100 w-100 text-center" id="m-upper-set-of-cards">
 
                     </div>
                 </div>
-                <div class="row gx-0 gy-0 w-100 m-card-row" style="top: 35%;">
+                <div class="row gx-0 gy-0 w-100  h-50" style="top: 35%;">
                     <!-- the below set of cards -->
-                    <div class="col d-flex flex-row justify-content-around" style="width: 5%;"
-                        id="m-below-set-of-cards">
+                    <div class="col-sm-auto h-100 w-100 text-center" id="m-below-set-of-cards">
 
                     </div>
                 </div>
@@ -129,12 +131,22 @@
         </div>
     </div>
 
-    <!-- choose color -->
-    <div id="m-choose-color" hidden>
-        <!-- cover -->
-        <div
-            style="position: absolute; left: 0%; top: 0%; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.7);">
+    <!-- context 2 -->
+    <div style="position: absolute; left: 0; top: 0; height: 70vh; width: 100vw; z-index: 11;" hidden
+        id="m-drawed-card-switch">
+        <div id="cover"
+            style="position: absolute; left: 0; top: 0; height: 100vh; width: 100vw; background-color: rgba(0,0,0,0.6); z-index: 99;">
         </div>
+        <div id="m-drawed-card-slot">
+        </div>
+
+        <button id="m-button-drawed-play">Play</button>
+        <button id="m-button-drawed-skip">Skip</button>
+    </div>
+
+    <!-- choose color -->
+    <div id="m-choose-color" hidden
+        style="z-index: 100;position: absolute; left: 0%; top: 0%; width: 100vw; height: 100vh; background-color: rgba(0,0,0,0.7);">
         <div style="position: absolute; left: 0%; top: 0%; height: 100vh; width: 100vw">
             <div class="container-fluid text-center h-100">
                 <div class="row h-100">
@@ -182,8 +194,10 @@
         <!-- templates -->
         <div id="tpl">
             <!-- player's card template -->
-            <div style="width: 5%">
-            </div>
+            <!-- <div class="col h-100 w-100">
+            </div> -->
+            <!-- <div style="width: 5%">
+            </div> -->
 
             <!-- player representation -->
             <div class="row" style="margin: auto;">

@@ -25,6 +25,10 @@ export function routeEvent(event, PlayerData) {
             updateUI(PlayerData)
             break
 
+        case "exist_player_username":
+            alert("Exist this username in the game, please uses different name")
+            break
+
         case "update_state":
             let newCTX = Object.assign(new Context, event.payload)
             PlayerData.Data.setNewContext(newCTX)
@@ -52,10 +56,10 @@ export function routeEvent(event, PlayerData) {
             break
 
         case "end_game":
-            SendMessage("close_connect", {})
+            PlayerData.SC.send(JSON.stringify(new Event("close_connect", {})))
             PlayerData.SC.close()
+            alert(event.payload.winner + " wins.")
             location.reload()
-            alert(event.payload.winner + " wins.\nEnd game!")
             break
 
         default:

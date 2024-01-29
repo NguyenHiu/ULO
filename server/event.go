@@ -29,6 +29,9 @@ const (
 	EventCloseConnect        = "close_connect"
 	EventRequestAChoice      = "draw_1_skip_or_play"
 	EventNextPlayer          = "next_player"
+	EventUnoCall             = "uno_call"
+	EventUnoPunish           = "uno_punish"
+	EventExistPlayerUsername = "exist_player_username"
 )
 
 type PlayCardEvent struct {
@@ -136,6 +139,8 @@ func DrawCards(event Event, p *Player) error {
 		}
 		fmt.Printf("p.cards: %v", p.cards)
 
+		p.isUNO = false
+
 		// update this player's cards
 		cardsData, err := json.Marshal(p.cards)
 		if err != nil {
@@ -190,8 +195,8 @@ type RequestDataEvent struct {
 }
 
 func RequestData(event Event, p *Player) error {
+	emptyPayload, _ := json.Marshal(struct{}{})
 	if p.manager.IsPlaying {
-		emptyPayload, _ := json.Marshal(struct{}{})
 		p.egress <- Event{
 			Type:    EventGameIsPlaying,
 			Payload: emptyPayload,
@@ -205,7 +210,15 @@ func RequestData(event Event, p *Player) error {
 		return fmt.Errorf("can not unmarshal request data, err: %v", err)
 	}
 
-	log.Println("requestData, not found data")
+	for _, pp := range p.manager.sortedPlayers {
+		if pp.name == data.Name {
+			p.egress <- Event{
+				Type:    EventExistPlayerUsername,
+				Payload: emptyPayload,
+			}
+			return nil
+		}
+	}
 
 	p.cards = p.manager.InitACardSet(NOCARD)
 	p.name = data.Name
@@ -281,5 +294,91 @@ func CloseConnectReload(event Event, p *Player) error {
 func NextPlayer(event Event, p *Player) error {
 	noPlayers := len(p.manager.sortedPlayers)
 	p.manager.pos = ((p.manager.pos+p.manager.direction)%noPlayers + noPlayers) % noPlayers
+	ctxBytes, err := json.Marshal(p.manager.getContext())
+	if err != nil {
+		return fmt.Errorf("can not marshal new ctx after moving on next person, err: %v", err)
+	}
+	newCtxEvent := Event{
+		Type:    EventUpdateState,
+		Payload: ctxBytes,
+	}
+
+	for _, pp := range p.manager.sortedPlayers {
+		pp.egress <- newCtxEvent
+	}
 	return nil
+}
+
+func UnoCall(event Event, p *Player) error {
+	if ((len(p.cards) == 2) &&
+		(p.manager.sortedPlayers[p.manager.pos].name == p.name)) ||
+		(len(p.cards) == 1) {
+
+		p.isUNO = true
+
+		payloadBytes, err := json.Marshal(*p.manager.getContext())
+		if err != nil {
+			return fmt.Errorf("UnoCall(), can not marshal context, err: %v", err)
+		}
+		event = Event{
+			Type:    EventUpdateState,
+			Payload: payloadBytes,
+		}
+		for _, pp := range p.manager.sortedPlayers {
+			pp.egress <- event
+		}
+	} else {
+		fmt.Printf("Player '%v' just calls UNO when having more than 2 cards", p.name)
+	}
+	return nil
+}
+
+type PlayerBePunished struct {
+	Name string `json:"name"`
+}
+
+func UnoPunish(event Event, p *Player) error {
+	var data PlayerBePunished
+	err := json.Unmarshal(event.Payload, &data)
+	if err != nil {
+		return fmt.Errorf("UnoPunish(), can not unmarshal event payload, err: %v", err)
+	}
+
+	for _, pp := range p.manager.sortedPlayers {
+		if pp.name == data.Name {
+			if (len(pp.cards) == 1) && (pp.isUNO == false) {
+				if pp.name == p.manager.sortedPlayers[p.manager.pos].name {
+					return nil
+				}
+
+				moreCards := []Card{p.manager.draw1(), p.manager.draw1()}
+				pp.cards = append(pp.cards, moreCards...)
+				payloadBytes, err := json.Marshal(pp.cards)
+				if err != nil {
+					return fmt.Errorf("UnoPunish(), can not marshal cards after adding more 2 cards, err: %v", err)
+				}
+				pp.egress <- Event{
+					Type:    EventUpdateCards,
+					Payload: payloadBytes,
+				}
+
+				payloadBytes, err = json.Marshal(*p.manager.getContext())
+				if err != nil {
+					return fmt.Errorf("UnoPunish, can not marshal the new context after punishing player, err: %v", err)
+				}
+				updateEvent := Event{
+					Type:    EventUpdateState,
+					Payload: payloadBytes,
+				}
+
+				for _, pp := range p.manager.sortedPlayers {
+					pp.egress <- updateEvent
+				}
+
+			}
+			break
+		}
+	}
+	return nil
+
 }

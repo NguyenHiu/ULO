@@ -1,3 +1,9 @@
+input {
+    border: none;
+    border-radius: 0.4rem;
+    padding: 5px 10px;
+}
+
 body {
     font-family: Georgia, serif;
     /* overflow: hidden; */
@@ -7,10 +13,8 @@ body {
     background-color: green;
 } */
 
-.m-card-row {
-    position: absolute;
-    left: 50%;
-    transform: translate(-50%, 0%);
+#m-upper-set-of-cards > img, #m-below-set-of-cards > img {
+    max-height: 100%; max-width: 100%
 }
 
 .m-active-card {
@@ -18,7 +22,7 @@ body {
 }
 
 .m-player-represent {
-    /* background-color: pink; */
+    background-color: rgb(209, 165, 173);
     margin: auto;
     padding: 5px 10px;
     border-radius: 5px;
@@ -27,12 +31,18 @@ body {
 }
 
 .m-active-player {
-    background-color: rgb(244, 244, 150);
-    box-shadow: 0 0 12px rgb(202, 202, 55);;
+    border-radius: 5px;
+    background-color: rgb(244, 244, 150) !important;
+    box-shadow: 0 0 12px rgb(202, 202, 55) !important;
 }
 
 .m-curr-player {
     position: relative;
+}
+
+.m-player-call-uno {
+    border: 2px solid rgb(193, 15, 15);
+    border-radius: 5px;
 }
 
 #m-curr-player-slot > div {
@@ -44,9 +54,10 @@ body {
 
 #m-curr-card-slot {
     position: absolute;
-    left: 42%;
-    top: 35%;
-    transform: rotate(35deg);
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%,-50%);
+    /* transform: rotate(35deg); */
 }
 
 .m-curr-card {
@@ -66,20 +77,30 @@ body {
 }
 
 #m-button-draw {
-    padding: 10px 20px;
+    padding: 10px 40px;
     border-radius: 15px;
     position: absolute;
     top: 30%;
-    left: 70%;
+    left: 80%;
     transform: translate(-50%, -50%);
 }
 
 #m-button-play {
-    padding: 10px 20px;
+    padding: 10px 40px;
     border-radius: 15px;
     position: absolute;
-    top: 50%;
-    left: 70%;
+    top: 60%;
+    left: 80%;
+    transform: translate(-50%, -50%);
+}
+
+
+#m-button-call-uno {
+    padding: 30px 30px;
+    border-radius: 15px;
+    position: absolute;
+    top: 45%;
+    left: 20%;
     transform: translate(-50%, -50%);
 }
 
@@ -100,14 +121,5 @@ body {
     position: absolute;
     top: 60%;
     left: 62%;
-    transform: translate(-50%, -50%);
-}
-
-#m-button-call-uno {
-    padding: 10px 20px;
-    border-radius: 15px;
-    position: absolute;
-    top: 50%;
-    left: 30%;
     transform: translate(-50%, -50%);
 }

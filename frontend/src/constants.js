@@ -120,22 +120,24 @@ export const Cards = {
 
 let templates = document.getElementById("tpl").children
 const Templates = {
-    Card: templates[0],
-    Player: templates[1],
+    Player: templates[0],
+    // Card: templates[0],
 }
 
-export function NewPlayerRow(name, amount, triggeredName) {
+export function NewPlayerRow(name, amount, triggeredName, isUNo) {
     let tmp = Templates.Player.cloneNode(true)
     tmp.children[0].innerHTML = name + ", " + amount
     if (name == triggeredName)
-        tmp.className += " m-active-player"
+        tmp.children[0].className += " m-active-player"
+    if (isUNo)
+        tmp.className += " m-player-call-uno"
     return tmp
 }
 
-export function NewCardRepresentation(id) {
-    let tmp1 = Cards[id].cloneNode(true);
-    tmp1.style.width = "100%";
-    let tmp2 = Templates.Card.cloneNode(true)
-    tmp2.appendChild(tmp1)
-    return tmp2
-}
+// export function NewCardRepresentation(id) {
+//     let tmp1 = Cards[id].cloneNode(true);
+//     // tmp1.style.width = "100%";
+//     let tmp2 = Templates.Card.cloneNode(true)
+//     tmp2.appendChild(tmp1)
+//     return tmp2
+// }

@@ -15,6 +15,7 @@ type Player struct {
 	manager *Server
 	egress  chan Event
 	cards   []Card
+	isUNO   bool
 }
 
 func (p *Player) readMessage() {
